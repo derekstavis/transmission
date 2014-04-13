@@ -43,9 +43,20 @@ popup (GtkStatusIcon * self,
        guint           when,
        gpointer        data UNUSED)
 {
-  GtkWidget * w = gtr_action_get_widget ("/icon-popup");
+  static GtkWidget * menu = NULL;
 
-  gtk_menu_popup (GTK_MENU (w), NULL, NULL,
+  if ( menu == NULL )
+  {
+      GtkApplication *app = GTK_APPLICATION ( g_application_get_default( ) );
+      GList *windows = gtk_application_get_windows( app );
+      GtkWidget *window = GTK_WIDGET( windows->data );
+      GMenuModel *model = gtr_action_get_menu_model( "icon-popup" );
+      menu = gtk_menu_new_from_model( model );
+      gtk_menu_attach_to_widget( GTK_MENU( menu ), window, NULL );
+      g_object_unref( model );
+  }
+
+  gtk_menu_popup ( GTK_MENU( menu ), NULL, NULL,
                   gtk_status_icon_position_menu,
                   self, button, when);
 }
@@ -137,22 +148,33 @@ getIconName (void)
 gpointer
 gtr_icon_new (TrCore * core)
 {
-#ifdef HAVE_LIBAPPINDICATOR
-  GtkWidget * w;
   const char * icon_name = getIconName ();
+
+#ifdef HAVE_LIBAPPINDICATOR
+  
+  GtkWidget * w;
+  GMenuModel * m;
   AppIndicator * indicator = app_indicator_new (ICON_NAME, icon_name, APP_INDICATOR_CATEGORY_SYSTEM_SERVICES);
   app_indicator_set_status (indicator, APP_INDICATOR_STATUS_ACTIVE);
-  w = gtr_action_get_widget ("/icon-popup");
+
+  m = gtr_action_get_menu_model("icon-popup");
+  w = gtk_menu_new_from_model(m);
+
   app_indicator_set_menu (indicator, GTK_MENU (w));
   app_indicator_set_title (indicator, g_get_application_name ());
   g_object_set_qdata (G_OBJECT (indicator), core_quark (), core);
+
+  g_object_unref(m);
+
   return indicator;
+
 #else
-  const char * icon_name = getIconName ();
+
   GtkStatusIcon * icon = gtk_status_icon_new_from_icon_name (icon_name);
   g_signal_connect (icon, "activate", G_CALLBACK (activated), NULL);
   g_signal_connect (icon, "popup-menu", G_CALLBACK (popup), NULL);
   g_object_set_qdata (G_OBJECT (icon), core_quark (), core);
   return icon;
+
 #endif
 }

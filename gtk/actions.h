@@ -21,14 +21,14 @@
 #define NOTIFICATION_ICON  "transmission-notification-icon"
 
 
-void        gtr_actions_init (GtkUIManager * ui_manager, gpointer callback_user_data);
+void        gtr_actions_init( GtkApplication * app, gpointer callback_user_data );
+void        gtr_actions_add_to_map( GActionMap * map, gpointer callback_user_data);
 void        gtr_actions_set_core (TrCore * core);
 void        gtr_actions_handler (const char * action_name, gpointer user_data);
 
 void        gtr_action_activate    (const char * action_name);
 void        gtr_action_set_sensitive (const char * action_name, gboolean is_sensitive);
 void        gtr_action_set_toggled (const char * action_name, gboolean is_toggled);
-void        gtr_action_set_important (const char * action_name, gboolean is_important);
-GtkWidget*  gtr_action_get_widget  (const char * path);
+GMenuModel* gtr_action_get_menu_model( const char * id );
 
 #endif

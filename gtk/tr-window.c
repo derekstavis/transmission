@@ -82,7 +82,16 @@ static void
 on_popup_menu (GtkWidget * self UNUSED,
                GdkEventButton * event)
 {
-  GtkWidget * menu = gtr_action_get_widget ("/main-window-popup");
+  static GtkWidget * menu = NULL;
+ 
+  if ( menu == NULL )
+  {
+      GMenuModel *model = gtr_action_get_menu_model( "main-window-popup" );
+      menu = gtk_menu_new_from_model( model );
+      gtk_menu_attach_to_widget( GTK_MENU( menu ), self, NULL );
+
+      g_object_unref( model );
+  }
 
   gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL,
                   (event ? event->button : 0),
@@ -313,7 +322,7 @@ onFilterChanged (GtkToggleButton * button, gpointer vp)
   gtk_revealer_set_reveal_child (w, b);
 
 }
-
+/*
 static void
 findMaxAnnounceTime (GtkTreeModel * model,
                      GtkTreePath  * path UNUSED,
@@ -364,6 +373,7 @@ onAskTrackerQueryTooltip (GtkWidget   * widget UNUSED,
 
   return handled;
 }
+*/
 
 static gboolean
 onAltSpeedToggledIdle (gpointer vp)
@@ -588,7 +598,7 @@ onOptionsClicked (GtkButton * button UNUSED, gpointer vp)
   w = b ? p->speedlimit_on_item[TR_UP] : p->speedlimit_off_item[TR_UP];
   gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (w), TRUE);
 
-  tr_strlratio (buf1, gtr_pref_double_get (TR_KEY_ratio_limit), sizeof (buf1));
+tr_strlratio (buf1, gtr_pref_double_get (TR_KEY_ratio_limit), sizeof (buf1));
   g_snprintf (buf2, sizeof (buf2), _("Stop at Ratio (%s)"), buf1);
   gtr_label_set_text (GTK_LABEL (gtk_bin_get_child (GTK_BIN (p->ratio_on_item))), buf2);
 
@@ -602,15 +612,15 @@ onOptionsClicked (GtkButton * button UNUSED, gpointer vp)
 ****  PUBLIC
 ***/
 
-GtkWidget *
-gtr_window_new (GtkApplication * app, GtkUIManager * ui_mgr, TrCore * core)
+GtkWidget * 
+gtr_window_new( GtkApplication * app, TrCore * core )
 {
   int              i, n;
   const char     * pch, * style;
   PrivateData    * p;
   GtkWidget      * sibling = NULL;
   GtkWidget      * ul_lb, * dl_lb;
-  GtkWidget      * mainmenu, *toolbar, *filter, *list, *status;
+  GtkWidget      * toolbar, *filter, *list, *status;
   GtkWidget      * vbox, *w, *self, *menu;
   GtkWidget      * *button, *toggle_button;
   GtkImage       * image;
@@ -619,6 +629,7 @@ gtr_window_new (GtkApplication * app, GtkUIManager * ui_mgr, TrCore * core)
   GtkCssProvider * css_provider;
   GSList         * l;
   GtkGrid        * grid;
+  GMenuModel     * model;
 
   p = g_new0 (PrivateData, 1);
 
@@ -635,7 +646,7 @@ gtr_window_new (GtkApplication * app, GtkUIManager * ui_mgr, TrCore * core)
                         gtr_pref_int_get (TR_KEY_main_window_y));
   if (gtr_pref_flag_get (TR_KEY_main_window_is_maximized))
     gtk_window_maximize (win);
-  gtk_window_add_accel_group (win, gtk_ui_manager_get_accel_group (ui_mgr));
+
   /* Add style provider to the window. */
   /* Please move it to separate .css file if you’re adding more styles here. */
   style = ".tr-workarea {border-width: 1px 0; border-style: solid; border-radius: 0;}";
@@ -649,12 +660,7 @@ gtr_window_new (GtkApplication * app, GtkUIManager * ui_mgr, TrCore * core)
   /* window's main container */
   vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
   gtk_container_add (GTK_CONTAINER (self), vbox);
-
-  /* main menu */
-  ////mainmenu = gtr_action_get_widget ("/main-window-menu");
-  //w = gtr_action_get_widget ("/main-window-menu/torrent-menu/torrent-reannounce");
-  //g_signal_connect (w, "query-tooltip", G_CALLBACK (onAskTrackerQueryTooltip), p);
-
+  
   /* toolbar */
   toolbar = gtk_header_bar_new();
   gtk_header_bar_set_show_close_button(GTK_HEADER_BAR (toolbar), TRUE);
@@ -686,8 +692,8 @@ gtr_window_new (GtkApplication * app, GtkUIManager * ui_mgr, TrCore * core)
   image = (GtkImage*) gtk_image_new_from_icon_name ("emblem-system-symbolic", GTK_ICON_SIZE_MENU);
   gtk_container_add(button, GTK_WIDGET (image));
   gtk_header_bar_pack_end (GTK_CONTAINER (toolbar), (GtkWidget*) button);
-  menu = gtr_action_get_widget ("/main-window-popup");
-  gtk_menu_button_set_popup(GTK_MENU_BUTTON (button), menu);
+  model = gtr_action_get_menu_model ("main-window-popup");
+  gtk_menu_button_set_menu_model(GTK_MENU_BUTTON (button), model);
 
   toggle_button = (GtkToggleButton*) gtk_toggle_button_new ();
   image = (GtkImage*) gtk_image_new_from_icon_name ("edit-find-symbolic", GTK_ICON_SIZE_MENU);
@@ -794,8 +800,6 @@ gtr_window_new (GtkApplication * app, GtkUIManager * ui_mgr, TrCore * core)
   gtk_container_add (GTK_CONTAINER (w), p->view);
 
   /* lay out the widgets */
-  //gtk_box_pack_start (GTK_BOX (vbox), mainmenu, FALSE, FALSE, 0);
-  //gtk_box_pack_start (GTK_BOX (vbox), toolbar, FALSE, FALSE, 0);
   gtk_box_pack_start (GTK_BOX (vbox), filter, FALSE, FALSE, 0);
   gtk_box_pack_start (GTK_BOX (vbox), list, TRUE, TRUE, 0);
   gtk_box_pack_start (GTK_BOX (vbox), status, FALSE, FALSE, 0);
