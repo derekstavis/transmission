@@ -36,23 +36,23 @@
 static TrCore * myCore = NULL;
 
 static void
-action_cb( GSimpleAction * a, GVariant * parameter UNUSED, gpointer user_data )
+action_cb (GSimpleAction * a, GVariant * parameter UNUSED, gpointer user_data)
 {
-    gtr_actions_handler( g_action_get_name( G_ACTION( a ) ), user_data );
+    gtr_actions_handler(g_action_get_name (G_ACTION (a)), user_data);
 }
 
 static void
-sort_action_cb( GSimpleAction * action,
+sort_action_cb (GSimpleAction * action,
                 GVariant * parameter,
-                gpointer user_data UNUSED )
+                gpointer user_data UNUSED)
 {
-    g_action_change_state( G_ACTION( action ), parameter );
+    g_action_change_state (G_ACTION (action), parameter);
 };
 
 static void
-change_sort_cb( GSimpleAction * action,
+change_sort_cb (GSimpleAction * action,
                 GVariant * state,
-                gpointer user_data UNUSED )
+                gpointer user_data UNUSED)
 {
     const char * val = g_variant_get_string( state, NULL );
 
@@ -61,7 +61,7 @@ change_sort_cb( GSimpleAction * action,
 }
 
 static void
-toggle_action_cb( GSimpleAction *  action,
+toggle_action_cb (GSimpleAction *  action,
                   GVariant * parameter UNUSED,
                   gpointer user_data UNUSED )
 {
@@ -73,9 +73,9 @@ toggle_action_cb( GSimpleAction *  action,
 };
 
 static void
-change_pref_cb( GSimpleAction * action,
+change_pref_cb (GSimpleAction * action,
                 GVariant * state,
-                gpointer user_data UNUSED )
+                gpointer user_data UNUSED)
  {
     const char * key = g_action_get_name( G_ACTION( action ) );
  
@@ -86,9 +86,9 @@ change_pref_cb( GSimpleAction * action,
 };
 
 static void
-change_toggle_cb( GSimpleAction * action,
+change_toggle_cb (GSimpleAction * action,
                   GVariant * state,
-                  gpointer user_data UNUSED )
+                  gpointer user_data UNUSED)
 {
     gtr_actions_handler( g_action_get_name( G_ACTION( action ) ), user_data );
     g_simple_action_set_state( action, state );
