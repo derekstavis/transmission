@@ -745,7 +745,7 @@ app_setup (GtkWindow * wind, struct cbdata * cbdata)
                                               GTK_BUTTONS_NONE,
                                               "%s",
         _("Transmission is a file sharing program. When you run a torrent, its data will be made available to others by means of upload. Any content you share is your sole responsibility."));
-      gtk_dialog_add_button (GTK_DIALOG (w), GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT);
+      gtk_dialog_add_button (GTK_DIALOG (w), _("_Cancel"), GTK_RESPONSE_REJECT);
       gtk_dialog_add_button (GTK_DIALOG (w), _("I _Agree"), GTK_RESPONSE_ACCEPT);
       gtk_dialog_set_default_response (GTK_DIALOG (w), GTK_RESPONSE_ACCEPT);
       switch (gtk_dialog_run (GTK_DIALOG (w)))
@@ -973,7 +973,7 @@ on_app_exit (gpointer vdata)
   gtk_grid_set_column_spacing (GTK_GRID (p), GUI_PAD_BIG);
   gtk_container_add (GTK_CONTAINER (r), p);
 
-  w = gtk_image_new_from_stock (GTK_STOCK_NETWORK, GTK_ICON_SIZE_DIALOG);
+  w = gtk_image_new_from_icon_name ("network-workgroup-symbolic", GTK_ICON_SIZE_DIALOG);
   gtk_grid_attach (GTK_GRID (p), w, 0, 0, 1, 2);
 
   w = gtk_label_new (NULL);

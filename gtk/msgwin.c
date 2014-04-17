@@ -205,9 +205,9 @@ onSaveRequest (GtkWidget * w,
   GtkWindow * window = GTK_WINDOW (gtk_widget_get_toplevel (w));
   GtkWidget * d = gtk_file_chooser_dialog_new (_("Save Log"), window,
                                                GTK_FILE_CHOOSER_ACTION_SAVE,
-                                               GTK_STOCK_CANCEL,
+                                               _("_Cancel"),
                                                GTK_RESPONSE_CANCEL,
-                                               GTK_STOCK_SAVE,
+                                               _("_Save"),
                                                GTK_RESPONSE_ACCEPT,
                                                NULL);
 
@@ -479,12 +479,12 @@ gtr_message_log_window_new (GtkWindow * parent, TrCore * core)
   gtk_style_context_add_class (gtk_widget_get_style_context (toolbar),
                                GTK_STYLE_CLASS_PRIMARY_TOOLBAR);
 
-  item = gtk_tool_button_new_from_stock (GTK_STOCK_SAVE_AS);
+  item = gtk_tool_button_new_from_icon_name ("document-save-symbolic");
   g_object_set (G_OBJECT (item), "is-important", TRUE, NULL);
   g_signal_connect (item, "clicked", G_CALLBACK (onSaveRequest), data);
   gtk_toolbar_insert (GTK_TOOLBAR (toolbar), item, -1);
 
-  item = gtk_tool_button_new_from_stock (GTK_STOCK_CLEAR);
+  item = gtk_tool_button_new_from_icon_name ("edit-clear-all-symbolic");
   g_object_set (G_OBJECT (item), "is-important", TRUE, NULL);
   g_signal_connect (item, "clicked", G_CALLBACK (onClearRequest), data);
   gtk_toolbar_insert (GTK_TOOLBAR (toolbar), item, -1);
@@ -492,7 +492,7 @@ gtr_message_log_window_new (GtkWindow * parent, TrCore * core)
   item = gtk_separator_tool_item_new ();
   gtk_toolbar_insert (GTK_TOOLBAR (toolbar), item, -1);
 
-  item = gtk_toggle_tool_button_new_from_stock (GTK_STOCK_MEDIA_PAUSE);
+  item = gtk_toggle_tool_button_new_from_icon_name ("media-playback-pause-symbolic");
   g_object_set (G_OBJECT (item), "is-important", TRUE, NULL);
   g_signal_connect (item, "toggled", G_CALLBACK (onPauseToggled), data);
   gtk_toolbar_insert (GTK_TOOLBAR (toolbar), item, -1);

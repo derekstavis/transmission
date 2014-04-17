@@ -107,7 +107,7 @@ dialogResponse (GtkDialog * dialog, gint response, gpointer gdata)
                                               GTK_BUTTONS_NONE,
                                               "%s", primary);
       gtk_dialog_add_buttons (GTK_DIALOG (w),
-                              GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+                              _("_Cancel"), GTK_RESPONSE_CANCEL,
                               _("_Reset"), TR_RESPONSE_RESET,
                               NULL);
       gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (w), "%s", secondary);
@@ -137,7 +137,7 @@ gtr_stats_dialog_new (GtkWindow * parent, TrCore * core)
                                    parent,
                                    GTK_DIALOG_DESTROY_WITH_PARENT,
                                    _("_Reset"), TR_RESPONSE_RESET,
-                                   GTK_STOCK_CLOSE, GTK_RESPONSE_CLOSE,
+                                   _("Cl_ose"), GTK_RESPONSE_CLOSE,
                                    NULL);
   gtk_dialog_set_default_response (GTK_DIALOG (d),
                                    GTK_RESPONSE_CLOSE);
