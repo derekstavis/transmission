@@ -282,8 +282,8 @@ gtr_torrent_options_dialog_new (GtkWindow * parent, TrCore * core, tr_ctor * cto
   /* make the dialog */
   d = gtk_dialog_new_with_buttons (_("Torrent Options"), parent,
                                    GTK_DIALOG_DESTROY_WITH_PARENT,
-                                   GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-                                   GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+                                   _("_Cancel"), GTK_RESPONSE_CANCEL,
+                                   _("_Open"), GTK_RESPONSE_ACCEPT,
                                    NULL);
   gtk_dialog_set_default_response (GTK_DIALOG (d),
                                    GTK_RESPONSE_ACCEPT);
@@ -446,8 +446,8 @@ gtr_torrent_open_from_file_dialog_new (GtkWindow * parent, TrCore * core)
 
   w = gtk_file_chooser_dialog_new (_("Open a Torrent"), parent,
                                    GTK_FILE_CHOOSER_ACTION_OPEN,
-                                   GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-                                   GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+                                   _("_Cancel"), GTK_RESPONSE_CANCEL,
+                                   _("_Open"), GTK_RESPONSE_ACCEPT,
                                    NULL);
   gtk_dialog_set_alternative_button_order (GTK_DIALOG (w),
                                            GTK_RESPONSE_ACCEPT,
@@ -511,8 +511,8 @@ gtr_torrent_open_from_url_dialog_new (GtkWindow * parent, TrCore * core)
 
   w = gtk_dialog_new_with_buttons (_("Open URL"), parent,
                                    GTK_DIALOG_DESTROY_WITH_PARENT,
-                                   GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-                                   GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+                                   _("_Cancel"), GTK_RESPONSE_CANCEL,
+                                   _("_Open"), GTK_RESPONSE_ACCEPT,
                                    NULL);
   gtk_dialog_set_alternative_button_order (GTK_DIALOG (w),
                                            GTK_RESPONSE_ACCEPT,
