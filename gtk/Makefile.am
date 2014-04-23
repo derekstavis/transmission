@@ -54,6 +54,7 @@ noinst_HEADERS = \
     tr-icon.h \
     tr-prefs.h \
     tr-window.h \
+    tr-status-menu-button.h \
     util.h
 
 bin_PROGRAMS = transmission-gtk
@@ -81,6 +82,7 @@ transmission_gtk_SOURCES = \
     tr-icon.c \
     tr-prefs.c \
     tr-window.c \
+    tr-status-menu-button.c \
     util.c
 
 dist_man_MANS = transmission-gtk.1
@@ -109,7 +111,7 @@ Productivity_DATA = $(DESKTOP_FILES)
 icon_DATA = transmission.png
 icondir = $(datadir)/pixmaps
 
-UI_FILES = transmission-ui.xml 
+UI_FILES = transmission-menus.ui 
 
 transmission-resources.c: transmission.gresource.xml $(UI_FILES) 
 	$(AM_V_GEN)glib-compile-resources --target=$@ --sourcedir=$(srcdir) \

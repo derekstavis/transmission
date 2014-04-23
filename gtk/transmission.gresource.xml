@@ -2,5 +2,6 @@
 <gresources> 
   <gresource prefix="/com/transmissionbt/transmission"> 
     <file>transmission-menus.ui</file> 
+    <file>tr-status-menu-button.ui</file> 
   </gresource> 
 </gresources> 
