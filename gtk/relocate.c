@@ -157,10 +157,7 @@ gtr_relocate_dialog_new (GtkWindow * parent,
                                    NULL);
   gtk_dialog_set_default_response (GTK_DIALOG (d),
                                    GTK_RESPONSE_CANCEL);
-  gtk_dialog_set_alternative_button_order (GTK_DIALOG (d),
-                                           GTK_RESPONSE_APPLY,
-                                           GTK_RESPONSE_CANCEL,
-                                           -1);
+  
   g_signal_connect (d, "response", G_CALLBACK (onResponse), NULL);
 
   row = 0;

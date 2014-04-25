@@ -211,10 +211,6 @@ onSaveRequest (GtkWidget * w,
                                                 GTK_RESPONSE_ACCEPT,
                                                 NULL);
 
-  gtk_dialog_set_alternative_button_order (GTK_DIALOG (d),
-                                           GTK_RESPONSE_ACCEPT,
-                                           GTK_RESPONSE_CANCEL,
-                                           -1);
   g_signal_connect (d, "response",
                     G_CALLBACK (onSaveDialogResponse), data);
   gtk_widget_show (d);
