@@ -55,15 +55,14 @@ create_void_pixbuf (int width,
 
 
 static int
-get_size_in_pixels (GtkWidget   * widget,
-                    GtkIconSize   icon_size)
+get_size_in_pixels (GtkIconSize icon_size)
 {
     int width, height;
 
-    gtk_icon_size_lookup_for_settings (gtk_widget_get_settings (widget),
-                                       icon_size,
-                                       &width,
-                                       &height);
+    gtk_icon_size_lookup (icon_size,
+                          &width,
+                          &height);
+
     return MAX (width, height);
 }
 
@@ -77,7 +76,7 @@ icon_cache_new (GtkWidget * for_widget, int icon_size)
 
     icon_cache = g_new0 (IconCache, 1);
     icon_cache->icon_theme = gtk_icon_theme_get_for_screen (gtk_widget_get_screen (for_widget));
-    icon_cache->icon_size = get_size_in_pixels (for_widget, icon_size);
+    icon_cache->icon_size = get_size_in_pixels (icon_size);
     icon_cache->cache = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, g_object_unref);
 
     g_hash_table_insert (icon_cache->cache, (void*)VOID_PIXBUF_KEY, create_void_pixbuf (icon_cache->icon_size, icon_cache->icon_size));
