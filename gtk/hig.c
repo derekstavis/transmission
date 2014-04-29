@@ -60,7 +60,7 @@ void
 hig_workarea_add_wide_control (GtkWidget * t, guint * row, GtkWidget * w)
 {
     gtk_widget_set_hexpand (w, TRUE);
-    gtk_widget_set_margin_left (w, 18);
+    gtk_widget_set_margin_start (w, 18);
     gtk_grid_attach (GTK_GRID (t), w, 0, *row, 2, 1);
     ++ * row;
 }
@@ -88,7 +88,7 @@ hig_workarea_add_wide_checkbutton (GtkWidget  * t,
 void
 hig_workarea_add_label_w (GtkWidget * t, guint row, GtkWidget * w)
 {
-    gtk_widget_set_margin_left (w, 18);
+    gtk_widget_set_margin_start (w, 18);
     if (GTK_IS_MISC (w))
         gtk_misc_set_alignment (GTK_MISC (w), 0.0f, 0.5f);
     if (GTK_IS_LABEL (w))
