@@ -320,7 +320,7 @@ onFilterChanged (GtkToggleButton * button, gpointer vp)
   GtkWidget   * w = p->filter;
   const gboolean b = gtk_toggle_button_get_active (button);
 
-  gtk_revealer_set_reveal_child (w, b);
+  gtk_revealer_set_reveal_child (GTK_REVEALER (w), b);
 
 }
 /*
@@ -435,7 +435,7 @@ get_speed_menu_model (tr_direction dir)
 {
   int i, n;
   GObject   * o;
-  GMenuItem * mi, *sec;
+  GMenuItem * mi;
   GMenu     * m, *sm;
 
   const int speeds_KBps[] = { 5, 10, 20, 30, 40, 50, 75, 100, 150, 200, 250, 500, 750 };
@@ -447,7 +447,7 @@ get_speed_menu_model (tr_direction dir)
 
 
   sm = g_menu_new ();
-  mi = g_menu_item_new_section (NULL , sm);
+  mi = g_menu_item_new_section (NULL , G_MENU_MODEL (sm));
 
   g_menu_append_item (m, mi);
 
@@ -469,7 +469,7 @@ get_speed_menu_model (tr_direction dir)
 
   }
 
-  return m;
+  return G_MENU_MODEL (m);
   
 /*
   menu_shell = GTK_MENU_SHELL (m);
@@ -541,11 +541,8 @@ static GMenuModel *
 get_ratio_menu_model ()
 {
   int i, n;
-  GObject   * o;
-  GMenuItem * mi, *sec;
+  GMenuItem * mi;
   GMenu     * m, *sm;
-
-  
 
   m = g_menu_new ();
 
@@ -554,7 +551,7 @@ get_ratio_menu_model ()
 
 
   sm = g_menu_new ();
-  mi = g_menu_item_new_section (NULL , sm);
+  mi = g_menu_item_new_section (NULL , G_MENU_MODEL (sm));
 
   g_menu_append_item (m, mi);
 
@@ -574,7 +571,7 @@ get_ratio_menu_model ()
 
   }
 
-  return m;
+  return G_MENU_MODEL (m);
 }
 
 static GtkWidget*
@@ -619,32 +616,6 @@ createRatioMenu (PrivateData * p)
 ****  Option menu
 ***/
 
-static GtkWidget*
-createOptionsMenu (PrivateData * p)
-{
-  GtkWidget * m;
-  GtkWidget * top = gtk_menu_new ();
-  GtkMenuShell * menu_shell = GTK_MENU_SHELL (top);
-
-  m = gtk_menu_item_new_with_label (_("Limit Download Speed"));
-  getnu_item_set_submenu (GTK_MENU_ITEM (m), create_speed_menu_model (p, TR_DOWN));
-  gtk_menu_shell_append (menu_shell, m);
-
-  m = gtk_menu_item_new_with_label (_("Limit Upload Speed"));
-  getnu_item_set_submenu (GTK_MENU_ITEM (m), create_speed_menu_model (p, TR_UP));
-  gtk_menu_shell_append (menu_shell, m);
-
-  m = gtk_separator_menu_item_new ();
-  gtk_menu_shell_append (menu_shell, m);
-
-  m = gtk_menu_item_new_with_label (_("Stop Seeding at Ratio"));
-  gtk_menu_item_set_submenu (GTK_MENU_ITEM (m), createRatioMenu (p));
-  gtk_menu_shell_append (menu_shell, m);
-
-  gtk_widget_show_all (top);
-  return top;
-}
-
 static void
 onOptionsClicked (GtkButton * button UNUSED, gpointer vp)
 {
@@ -670,7 +641,7 @@ onOptionsClicked (GtkButton * button UNUSED, gpointer vp)
   w = b ? p->speedlimit_on_item[TR_UP] : p->speedlimit_off_item[TR_UP];
   gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (w), TRUE);
 
-tr_strlratio (buf1, gtr_pref_double_get (TR_KEY_ratio_limit), sizeof (buf1));
+  tr_strlratio (buf1, gtr_pref_double_get (TR_KEY_ratio_limit), sizeof (buf1));
   g_snprintf (buf2, sizeof (buf2), _("Stop at Ratio (%s)"), buf1);
   gtr_label_set_text (GTK_LABEL (gtk_bin_get_child (GTK_BIN (p->ratio_on_item))), buf2);
 
@@ -694,8 +665,8 @@ gtr_window_new( GtkApplication * app, TrCore * core )
   GtkWidget      * ul_lb, * dl_lb;
   GtkWidget      * toolbar, *filter, *list, *status;
   GtkWidget      * vbox, *tbox, *w, *pop, *self, *menu;
-  GtkWidget      * *button, *toggle_button;
-  GtkImage       * image;
+  GtkWidget      * button, *toggle_button;
+  GtkWidget      * image;
   GtkWidget      * grid_w;
   GtkWindow      * win;
   GtkCssProvider * css_provider;
@@ -735,34 +706,37 @@ gtr_window_new( GtkApplication * app, TrCore * core )
 
   /* toolbar */
   toolbar = gtk_header_bar_new();
-  gtk_header_bar_set_show_close_button(GTK_HEADER_BAR (toolbar), TRUE);
-  gtk_header_bar_set_title(toolbar, g_get_application_name ());
-  gtk_header_bar_set_subtitle(toolbar, "All Torrents");
-  gtk_window_set_titlebar(GTK_WINDOW (win), toolbar);
+  gtk_header_bar_set_show_close_button (GTK_HEADER_BAR (toolbar), TRUE);
+  gtk_header_bar_set_title (GTK_HEADER_BAR (toolbar), g_get_application_name ());
+  gtk_header_bar_set_subtitle (GTK_HEADER_BAR (toolbar), "All Torrents");
+  gtk_window_set_titlebar (GTK_WINDOW (win), toolbar);
 
-  /* action icons group */
+  /* new document actions */
 
   tbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
 
-  button = (GtkButton*) gtk_button_new ();
-  image = (GtkImage*) gtk_image_new_from_icon_name ("document-send-symbolic", GTK_ICON_SIZE_MENU);
-  gtk_container_add(button, GTK_WIDGET (image));
-  gtk_container_add (GTK_CONTAINER (tbox), (GtkWidget*) button);
+  button = gtk_button_new_from_icon_name ("document-send-symbolic", GTK_ICON_SIZE_MENU);
+  gtk_container_add (GTK_CONTAINER (tbox), button);
 
-  button = (GtkButton*) gtk_button_new ();
-  image = (GtkImage*) gtk_image_new_from_icon_name ("document-open-symbolic", GTK_ICON_SIZE_MENU);
-  gtk_container_add(button, GTK_WIDGET (image));
-  gtk_container_add (GTK_CONTAINER (tbox), (GtkWidget*) button);
+  button = gtk_button_new_from_icon_name ("document-open-symbolic", GTK_ICON_SIZE_MENU);
+  gtk_container_add (GTK_CONTAINER (tbox), button);
 
-  button = (GtkButton*) gtk_button_new ();
-  image = (GtkImage*) gtk_image_new_from_icon_name ("user-trash-symbolic", GTK_ICON_SIZE_MENU);
-  gtk_container_add(button, GTK_WIDGET (image));
-  gtk_container_add (GTK_CONTAINER (tbox), (GtkWidget*) button);
+  gtk_style_context_add_class (gtk_widget_get_style_context (tbox),
+             GTK_STYLE_CLASS_RAISED);
+  gtk_style_context_add_class (gtk_widget_get_style_context (tbox),
+             GTK_STYLE_CLASS_LINKED);
 
-  button = (GtkButton*) gtk_button_new ();
-  image = (GtkImage*) gtk_image_new_from_icon_name ("document-properties-symbolic", GTK_ICON_SIZE_MENU);
-  gtk_container_add(button, GTK_WIDGET (image));
-  gtk_container_add (GTK_CONTAINER (tbox), (GtkWidget*) button);
+  gtk_header_bar_pack_start (GTK_HEADER_BAR (toolbar), tbox);
+ 
+  /* selection actions */
+
+  tbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+
+  button = gtk_button_new_from_icon_name ("user-trash-symbolic", GTK_ICON_SIZE_MENU);
+  gtk_container_add (GTK_CONTAINER (tbox), button);
+
+  button = gtk_button_new_from_icon_name ("document-properties-symbolic", GTK_ICON_SIZE_MENU);
+  gtk_container_add (GTK_CONTAINER (tbox), button);
 
   gtk_style_context_add_class (gtk_widget_get_style_context (tbox),
              GTK_STYLE_CLASS_RAISED);
@@ -771,24 +745,26 @@ gtr_window_new( GtkApplication * app, TrCore * core )
 
   gtk_header_bar_pack_start (GTK_HEADER_BAR (toolbar), tbox);
 
-  button = (GtkMenuButton*) gtk_menu_button_new ();
-  image = (GtkImage*) gtk_image_new_from_icon_name ("emblem-system-symbolic", GTK_ICON_SIZE_MENU);
-  gtk_container_add(button, GTK_WIDGET (image));
-  gtk_header_bar_pack_end (GTK_CONTAINER (toolbar), (GtkWidget*) button);
+  /* gear */
+
+  button = gtk_menu_button_new ();
+  image = gtk_image_new_from_icon_name ("emblem-system-symbolic", GTK_ICON_SIZE_MENU);
+  gtk_container_add (GTK_CONTAINER (button), image);
+  gtk_header_bar_pack_end (GTK_HEADER_BAR (toolbar), button);
   model = gtr_action_get_menu_model ("main-window-popup");
   gtk_menu_button_set_menu_model(GTK_MENU_BUTTON (button), model);
 
-  toggle_button = (GtkToggleButton*) gtk_toggle_button_new ();
-  image = (GtkImage*) gtk_image_new_from_icon_name ("edit-find-symbolic", GTK_ICON_SIZE_MENU);
-  gtk_container_add(toggle_button, GTK_WIDGET (image));
-  gtk_header_bar_pack_end (GTK_CONTAINER (toolbar), (GtkWidget*) toggle_button);
+  toggle_button = gtk_toggle_button_new ();
+  image = gtk_image_new_from_icon_name ("edit-find-symbolic", GTK_ICON_SIZE_MENU);
+  gtk_container_add (GTK_CONTAINER (toggle_button), image);
+  gtk_header_bar_pack_end (GTK_HEADER_BAR (toolbar), toggle_button);
   g_signal_connect(toggle_button, "toggled", G_CALLBACK (onFilterChanged), p);
 
   /* filter */
   w = filter = p->filter = gtr_filter_bar_new (gtr_core_session (core),
                                                gtr_core_model (core),
                                                &p->filter_model,
-                                               toolbar);
+                                               GTK_HEADER_BAR (toolbar));
   //gtk_revealer_set_reveal_child (GTK_REVEALER (filter), TRUE);
 
   gtk_container_set_border_width (GTK_CONTAINER (w), GUI_PAD_SMALL);
@@ -825,7 +801,7 @@ gtr_window_new( GtkApplication * app, TrCore * core )
     get_speed_menu_model (TR_DOWN)
   );
   gtk_popover_set_position (GTK_POPOVER (pop), GTK_POS_BOTTOM);
-  gtk_menu_button_set_popover (GTK_MENU_BUTTON (w), GTK_POPOVER (pop));
+  gtk_menu_button_set_popover (GTK_MENU_BUTTON (w), GTK_WIDGET (pop));
   gtk_grid_attach_next_to (grid, w, sibling, GTK_POS_RIGHT, 1, 1);
   sibling = w;
 
@@ -837,10 +813,8 @@ gtr_window_new( GtkApplication * app, TrCore * core )
     get_speed_menu_model (TR_UP)
   );
   gtk_popover_set_position (GTK_POPOVER (pop), GTK_POS_BOTTOM);
-  gtk_menu_button_set_popover (GTK_MENU_BUTTON (w), GTK_POPOVER (pop));
+  gtk_menu_button_set_popover (GTK_MENU_BUTTON (w), GTK_WIDGET (pop));
   gtk_grid_attach_next_to (grid, w, sibling, GTK_POS_RIGHT, 1, 1);
-  //p->options_menu = createOptionsMenu (p);
-  //g_signal_connect (w, "clicked", G_CALLBACK (onOptionsClicked), p);
   sibling = w;
 
   /* ratio */
@@ -851,24 +825,9 @@ gtr_window_new( GtkApplication * app, TrCore * core )
     get_ratio_menu_model ()
   );
     
-  gtk_menu_button_set_popover (GTK_MENU_BUTTON (w), GTK_POPOVER (pop));
+  gtk_menu_button_set_popover (GTK_MENU_BUTTON (w), GTK_WIDGET (pop));
   gtk_grid_attach_next_to (grid, w, sibling, GTK_POS_RIGHT, 1, 1);
-  //p->options_menu = createOptionsMenu (p);
-  //g_signal_connect (w, "clicked", G_CALLBACK (onOptionsClicked), p);
   sibling = w;
-
-  /* gear */
-  /*
-  w = gtk_button_new ();
-  image = gtk_image_new_from_icon_name ("preferences-system-symbolic", GTK_ICON_SIZE_MENU);
-  gtk_container_add (GTK_CONTAINER (w), image);
-  gtk_widget_set_tooltip_text (w, _("Options"));
-  gtk_grid_attach_next_to (grid, w, sibling, GTK_POS_RIGHT, 1, 1);
-  gtk_button_set_relief (GTK_BUTTON (w), GTK_RELIEF_NONE);
-  p->options_menu = createOptionsMenu (p);
-  g_signal_connect (w, "clicked", G_CALLBACK (onOptionsClicked), p);
-  sibling = w;
-  */
 
   /* turtle */
   p->alt_speed_image = gtk_image_new ();
@@ -907,9 +866,8 @@ gtr_window_new( GtkApplication * app, TrCore * core )
   gtk_label_set_single_line_mode (p->stats_lb, TRUE);
   gtk_grid_attach_next_to (grid, w, sibling, GTK_POS_RIGHT, 1, 1);
   sibling = w;
-  w = gtk_button_new ();
+  w = gtk_button_new_from_icon_name ("ratio", GTK_ICON_SIZE_SMALL_TOOLBAR);
   gtk_widget_set_tooltip_text (w, _("Statistics"));
-  gtk_container_add (GTK_CONTAINER (w), gtk_image_new_from_icon_name ("ratio", GTK_ICON_SIZE_SMALL_TOOLBAR));
   gtk_button_set_relief (GTK_BUTTON (w), GTK_RELIEF_NONE);
   g_signal_connect (w, "clicked", G_CALLBACK (onYinYangReleased), p);
   gtk_grid_attach_next_to (grid, w, sibling, GTK_POS_RIGHT, 1, 1);
@@ -944,7 +902,7 @@ gtr_window_new( GtkApplication * app, TrCore * core )
   }
 
   /* show the window */
-  gtk_widget_show_all (win);
+  gtk_widget_show_all (GTK_WIDGET (win));
 
   /* listen for prefs changes that affect the window */
   p->core = core;
