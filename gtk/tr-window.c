@@ -194,9 +194,12 @@ prefsChanged (TrCore           * core UNUSED,
   gboolean isEnabled;
   PrivateData * p = get_private_data (GTK_WINDOW (wind));
 
+  printf("prefsChanges(%d)\n", key);
+
   switch (key)
     {
       case TR_KEY_compact_view:
+        printf("compact-view\n");
         g_object_set (p->renderer, "compact", gtr_pref_flag_get (key), NULL);
         /* since the cell size has changed, we need gtktreeview to revalidate
          * its fixed-height mode values. Unfortunately there's not an API call
@@ -205,17 +208,20 @@ prefsChanged (TrCore           * core UNUSED,
         break;
 
       case TR_KEY_show_statusbar:
+        printf("show-status-bar\n");
         isEnabled = gtr_pref_flag_get (key);
         g_object_set (p->status, "visible", isEnabled, NULL);
         break;
 
       case TR_KEY_show_filterbar:
+        printf("show-filter-bar\n");
         isEnabled = gtr_pref_flag_get (key);
         g_object_set (p->filter, "visible", isEnabled, NULL);
         break;
 
       case TR_KEY_show_toolbar:
         isEnabled = gtr_pref_flag_get (key);
+        printf("TR_KEY_show_toolbar now is %d\n", isEnabled);
         g_object_set (p->toolbar, "visible", isEnabled, NULL);
         break;
 
@@ -457,7 +463,12 @@ get_speed_menu_model (tr_direction dir)
 
     tr_formatter_speed_KBps (title, speeds_KBps[i], sizeof (title));
 
-    g_snprintf(target_value, sizeof (target_value), "win.speed::limit-%d", speeds_KBps[i]);
+    if (dir == TR_UP) {
+      g_snprintf(target_value, sizeof (target_value), "win.speed::limit-%d", speeds_KBps[i]);
+    }
+    else if (dir == TR_DOWN) {
+      g_snprintf(target_value, sizeof (target_value), "win.speed::limit-%d", speeds_KBps[i]);
+    }
 
     mi = g_menu_item_new (title, target_value);
     
@@ -544,9 +555,16 @@ get_ratio_menu_model ()
   GMenuItem * mi;
   GMenu     * m, *sm;
 
+  char * action_key;
+  char detailed_action[256];
+
+  action_key  = tr_quark_get_string(TR_KEY_ratio_limit_enabled, NULL);
+  
+  g_snprintf(detailed_action, sizeof (detailed_action), "win.%s", action_key);
+
   m = g_menu_new ();
 
-  mi = g_menu_item_new (_("Seed Forever"), "win.seed-until::ratio-forever");
+  mi = g_menu_item_new (_("Seed Forever"), detailed_action);
   g_menu_append_item (m, mi);
 
 
@@ -558,14 +576,18 @@ get_ratio_menu_model ()
   for (i=0, n=G_N_ELEMENTS (stockRatios); i<n; ++i) {
     char ratio[128];
     char title[128];
-    char target_value[256];
 
+    action_key  = tr_quark_get_string(TR_KEY_ratio_limit, NULL);
+    
     tr_strlratio (ratio, stockRatios[i], sizeof (ratio));
 
     g_snprintf(title, sizeof (title), "Stop at %s ratio", ratio);
-    g_snprintf(target_value, sizeof (target_value), "win.seed-until::ratio-%d", i);
 
-    mi = g_menu_item_new (title, target_value);
+    g_snprintf(detailed_action, sizeof (detailed_action), "win.%s(%.02f)", action_key, stockRatios[i]);
+     
+    printf("%s\n", detailed_action);
+
+    mi = g_menu_item_new (title, detailed_action);
     
     g_menu_append_item (sm, mi);
 
@@ -906,6 +928,7 @@ gtr_window_new( GtkApplication * app, TrCore * core )
 
   /* listen for prefs changes that affect the window */
   p->core = core;
+  printf("should call prefsChanged\n");
   prefsChanged (core, TR_KEY_compact_view, self);
   prefsChanged (core, TR_KEY_show_filterbar, self);
   prefsChanged (core, TR_KEY_show_statusbar, self);

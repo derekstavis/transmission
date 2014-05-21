@@ -42,7 +42,7 @@ action_cb (GSimpleAction * a, GVariant * parameter UNUSED, gpointer user_data)
 }
 
 static void
-sort_action_cb (GSimpleAction * action,
+radio_action_cb (GSimpleAction * action,
                 GVariant * parameter,
                 gpointer user_data UNUSED)
 {
@@ -65,8 +65,10 @@ toggle_action_cb (GSimpleAction *  action,
                   GVariant * parameter UNUSED,
                   gpointer user_data UNUSED )
 {
+
     GVariant * state = g_action_get_state( G_ACTION( action ) );
     const gboolean val = g_variant_get_boolean( state );
+    printf("toggle_action_cb(%s, %d)\n", g_action_get_name (G_ACTION (action)), val);
 
     g_action_change_state( G_ACTION( action ), g_variant_new_boolean( !val ) );
     g_variant_unref( state );
@@ -89,10 +91,39 @@ change_pref_cb (GSimpleAction * action,
         len = strlen (key);
 
     if (tr_quark_lookup (key, len, &entry_name)) {
-        gtr_core_set_pref_bool (myCore, entry_name, g_variant_get_boolean (state));
-        g_simple_action_set_state (action, state);
+       printf("set_pref_bool %s, %d\n", key, g_variant_get_boolean(state)); 
+       gtr_core_set_pref_bool (myCore, entry_name, g_variant_get_boolean (state));
+       g_simple_action_set_state (action, state);
     }
 };
+
+static void
+change_ratio_limit_cb (GSimpleAction * action,
+                       GVariant      * ratio,
+                       gpointer user_data UNUSED)
+ {
+    const char * key = g_action_get_name (G_ACTION (action));
+    size_t len = 0;
+    tr_quark entry_name = TR_KEY_NONE;
+    double value;
+
+    g_return_if_fail (g_variant_is_of_type (ratio, G_VARIANT_TYPE_DOUBLE));
+   
+    value = g_variant_get_double(ratio);
+ 
+    if (key == NULL)
+        len = 0;
+    else if (len == (size_t)-1)
+        len = strlen (key);
+
+    if (tr_quark_lookup (key, len, &entry_name)) {
+      gtr_core_set_pref_double (myCore, TR_KEY_ratio_limit, value);
+      gtr_core_set_pref_bool (myCore, TR_KEY_ratio_limit_enabled, TRUE);
+    
+      g_simple_action_set_state (action, ratio);
+    }
+};
+
 
 static void
 change_toggle_cb (GSimpleAction * action,
@@ -106,7 +137,9 @@ change_toggle_cb (GSimpleAction * action,
 static GActionEntry win_entries[] =
 {
     /* radio actions */
-    { "sort-mode",                     sort_action_cb, "s", "\"sort-by-activity\"", change_sort_cb, {} },
+    { "sort-mode",                     radio_action_cb, "s", "\"sort-by-activity\"", change_sort_cb, {} },
+    { "ratio-limit",                   radio_action_cb, "d", "0.20", change_ratio_limit_cb, {} },
+    
 
     /* show toggle actions */
     { "toggle-main-window",            toggle_action_cb, NULL, "true", change_toggle_cb, {} },
@@ -119,10 +152,9 @@ static GActionEntry win_entries[] =
     { "show-filterbar",                toggle_action_cb, NULL, "true", change_pref_cb, {} },
     { "show-statusbar",                toggle_action_cb, NULL, "true", change_pref_cb, {} },
     { "show-toolbar",                  toggle_action_cb, NULL, "true", change_pref_cb, {} },
+    { "ratio-limit-enabled",           toggle_action_cb, NULL, "true", change_pref_cb, {} },
 
     /* plain actions */
-    { "seed-until",                    action_cb, NULL, NULL, NULL, {} },
-
     { "copy-magnet-link-to-clipboard", action_cb, NULL, NULL, NULL, {} },
     { "open-torrent-from-url",         action_cb, NULL, NULL, NULL, {} },
     { "open-torrent",                  action_cb, NULL, NULL, NULL, {} },
