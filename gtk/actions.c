@@ -79,48 +79,78 @@ change_pref_cb (GSimpleAction * action,
                 GVariant * state,
                 gpointer user_data UNUSED)
  {
-    const char * key = g_action_get_name (G_ACTION (action));
+    const char * action_name = g_action_get_name (G_ACTION (action));
     size_t len = 0;
     tr_quark entry_name = TR_KEY_NONE;
 
     g_return_if_fail (g_variant_is_of_type (state, G_VARIANT_TYPE_BOOLEAN));
     
-    if (key == NULL)
+    if (action_name == NULL)
         len = 0;
     else if (len == (size_t)-1)
-        len = strlen (key);
+        len = strlen (action_name);
 
-    if (tr_quark_lookup (key, len, &entry_name)) {
-       printf("set_pref_bool %s, %d\n", key, g_variant_get_boolean(state)); 
+    if (tr_quark_lookup (action_name, len, &entry_name)) {
+       printf("set_pref_bool %s, %d\n", action_name, g_variant_get_boolean(state)); 
        gtr_core_set_pref_bool (myCore, entry_name, g_variant_get_boolean (state));
        g_simple_action_set_state (action, state);
     }
 };
 
 static void
-change_ratio_limit_cb (GSimpleAction * action,
-                       GVariant      * ratio,
+change_value_cb (GSimpleAction  * action,
+                       GVariant * value,
                        gpointer user_data UNUSED)
  {
-    const char * key = g_action_get_name (G_ACTION (action));
-    size_t len = 0;
+    const char * action_name = g_action_get_name (G_ACTION (action));
     tr_quark entry_name = TR_KEY_NONE;
-    double value;
+    size_t len = 0;
 
-    g_return_if_fail (g_variant_is_of_type (ratio, G_VARIANT_TYPE_DOUBLE));
-   
-    value = g_variant_get_double(ratio);
+    len = strlen (action_name);
+
+    if (tr_quark_lookup (action_name, len, &entry_name)) {
+      
+      
+      if (g_variant_is_of_type (value, G_VARIANT_TYPE_BOOLEAN)) {
+          gboolean boolean = g_variant_get_boolean(value);
+          gtr_core_set_pref_bool (myCore, entry_name, boolean);
+      }
+
+      if (entry_name == TR_KEY_ratio_limit ||
+          entry_name == TR_KEY_ratio_limit_enabled) {
+
+          gdouble val;
+
+          g_return_if_fail (g_variant_is_of_type (value, G_VARIANT_TYPE_DOUBLE));
  
-    if (key == NULL)
-        len = 0;
-    else if (len == (size_t)-1)
-        len = strlen (key);
+          val  = g_variant_get_double(value);
+          gtr_core_set_pref_double (myCore, TR_KEY_ratio_limit, val);
+          gtr_core_set_pref_bool (myCore, TR_KEY_ratio_limit_enabled, TRUE);
+          
+      }
 
-    if (tr_quark_lookup (key, len, &entry_name)) {
-      gtr_core_set_pref_double (myCore, TR_KEY_ratio_limit, value);
-      gtr_core_set_pref_bool (myCore, TR_KEY_ratio_limit_enabled, TRUE);
-    
-      g_simple_action_set_state (action, ratio);
+      if (entry_name == TR_KEY_speed_limit_up ||
+          entry_name == TR_KEY_speed_limit_down) {
+
+          gint val;
+
+          printf("reached here");
+
+          g_return_if_fail (g_variant_is_of_type (value, G_VARIANT_TYPE_INT32));
+ 
+          val  = g_variant_get_int32(value);
+          gtr_core_set_pref_int (myCore, entry_name, val);
+          
+          if (entry_name == TR_KEY_speed_limit_up) {
+              gtr_core_set_pref_bool (myCore, TR_KEY_speed_limit_up_enabled, TRUE);
+          }
+ 
+          if (entry_name == TR_KEY_speed_limit_down) {
+              gtr_core_set_pref_bool (myCore, TR_KEY_speed_limit_down_enabled, TRUE);
+          }
+     }
+
+      g_simple_action_set_state (action, value);
     }
 };
 
@@ -138,8 +168,10 @@ static GActionEntry win_entries[] =
 {
     /* radio actions */
     { "sort-mode",                     radio_action_cb, "s", "\"sort-by-activity\"", change_sort_cb, {} },
-    { "ratio-limit",                   radio_action_cb, "d", "0.20", change_ratio_limit_cb, {} },
-    
+    { "ratio-limit",                   radio_action_cb, "d", "0.25", change_value_cb, {} },
+    { "speed-limit-down",              radio_action_cb, "i", "50", change_value_cb, {} },
+    { "speed-limit-up",                radio_action_cb, "i", "50", change_value_cb, {} },
+
 
     /* show toggle actions */
     { "toggle-main-window",            toggle_action_cb, NULL, "true", change_toggle_cb, {} },
@@ -147,6 +179,8 @@ static GActionEntry win_entries[] =
 
     /* pref toggle actions */
     { "alt-speed-enabled",             toggle_action_cb, NULL, "false", change_pref_cb, {} },
+    { "speed-limit-up-enabled",        toggle_action_cb, NULL, "false", change_pref_cb, {} },
+    { "speed-limit-down-enabled",      toggle_action_cb, NULL, "false", change_pref_cb, {} },
     { "compact-view",                  toggle_action_cb, NULL, "false", change_pref_cb, {} },
     { "sort-reversed",                 toggle_action_cb, NULL, "false", change_pref_cb, {} },
     { "show-filterbar",                toggle_action_cb, NULL, "true", change_pref_cb, {} },
