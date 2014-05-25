@@ -55,6 +55,7 @@ noinst_HEADERS = \
     tr-prefs.h \
     tr-window.h \
     tr-status-menu-button.h \
+    tr-limit-popover.h \
     util.h
 
 bin_PROGRAMS = transmission-gtk
@@ -83,6 +84,7 @@ transmission_gtk_SOURCES = \
     tr-prefs.c \
     tr-window.c \
     tr-status-menu-button.c \
+    tr-limit-popover.c \
     util.c
 
 dist_man_MANS = transmission-gtk.1
