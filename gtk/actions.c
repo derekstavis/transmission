@@ -85,13 +85,16 @@ change_pref_cb (GSimpleAction * action,
 
     g_return_if_fail (g_variant_is_of_type (state, G_VARIANT_TYPE_BOOLEAN));
     
-    if (action_name == NULL)
-        len = 0;
-    else if (len == (size_t)-1)
+    if (action_name != NULL)
         len = strlen (action_name);
 
+    printf("action_name = %s\n", action_name);
+    printf("len = %d\n", len);
+
     if (tr_quark_lookup (action_name, len, &entry_name)) {
-       printf("set_pref_bool %s, %d\n", action_name, g_variant_get_boolean(state)); 
+       printf("set_pref_bool %s, %d, %d\n", action_name, entry_name, 
+                                            g_variant_get_boolean(state)); 
+
        gtr_core_set_pref_bool (myCore, entry_name, g_variant_get_boolean (state));
        g_simple_action_set_state (action, state);
     }
@@ -164,18 +167,17 @@ change_toggle_cb (GSimpleAction * action,
                   GVariant * state,
                   gpointer user_data UNUSED)
 {
-    gtr_actions_handler( g_action_get_name( G_ACTION( action ) ), user_data );
-    g_simple_action_set_state( action, state );
+    gtr_actions_handler (g_action_get_name( G_ACTION( action ) ), user_data);
+    g_simple_action_set_state (action, state);
 };
 
 static GActionEntry win_entries[] =
 {
     /* radio actions */
     { "sort-mode",                     radio_action_cb, "s", "\"sort-by-activity\"", change_sort_cb, {} },
-    { "ratio-limit",                   radio_action_cb, "d", "0.25", change_value_cb, {} },
+    { "ratio-limit",                   radio_action_cb, "d", "1.00", change_value_cb, {} },
     { "speed-limit-down",              radio_action_cb, "i", "50", change_value_cb, {} },
     { "speed-limit-up",                radio_action_cb, "i", "50", change_value_cb, {} },
-
 
     /* show toggle actions */
     { "toggle-main-window",            toggle_action_cb, NULL, "true", change_toggle_cb, {} },
@@ -191,7 +193,7 @@ static GActionEntry win_entries[] =
     { "show-filterbar",                toggle_action_cb, NULL, "true", change_pref_cb, {} },
     { "show-statusbar",                toggle_action_cb, NULL, "true", change_pref_cb, {} },
     { "show-toolbar",                  toggle_action_cb, NULL, "true", change_pref_cb, {} },
-    { "ratio-limit-enabled",           toggle_action_cb, NULL, "true", change_pref_cb, {} },
+    { "ratio-limit-enabled",           toggle_action_cb, NULL, "false", change_pref_cb, {} },
 
     /* plain actions */
     { "copy-magnet-link-to-clipboard", action_cb, NULL, NULL, NULL, {} },
@@ -217,12 +219,12 @@ static GActionEntry win_entries[] =
     { "open-torrent-folder",           action_cb, NULL, NULL, NULL, {} },
     { "show-about-dialog",             action_cb, NULL, NULL, NULL, {} },
     { "help",                          action_cb, NULL, NULL, NULL, {} },
-    { "torrent-reannounce", action_cb, NULL, NULL, NULL, {} },
-    { "queue-move-top", action_cb, NULL, NULL, NULL, {} },
-    { "queue-move-up", action_cb, NULL, NULL, NULL, {} },
-    { "queue-move-down", action_cb, NULL, NULL, NULL, {} },
-    { "queue-move-bottom", action_cb, NULL, NULL, NULL, {} },
-    { "present-main-window", action_cb, NULL, NULL, NULL, {} }
+    { "torrent-reannounce",            action_cb, NULL, NULL, NULL, {} },
+    { "queue-move-top",                action_cb, NULL, NULL, NULL, {} },
+    { "queue-move-up",                 action_cb, NULL, NULL, NULL, {} },
+    { "queue-move-down",               action_cb, NULL, NULL, NULL, {} },
+    { "queue-move-bottom",             action_cb, NULL, NULL, NULL, {} },
+    { "present-main-window",           action_cb, NULL, NULL, NULL, {} }
 };
 
 static void
