@@ -43,10 +43,6 @@
 
 typedef struct
 {
-    GAction            * speedlimit_on_item[2];
-    GAction            * speedlimit_off_item[2];
-    GtkWidget          * ratio_on_item;
-    GtkWidget          * ratio_off_item;
     GtkWidget          * scroll;
     GtkWidget          * view;
     GtkWidget          * toolbar;
@@ -193,21 +189,14 @@ prefsChanged (TrCore           * core UNUSED,
               const tr_quark     key,
               gpointer           wind)
 {
-  GAction *action;
-  const char *action_name;
-
   gboolean isEnabled;
   int limit;
-  size_t len;
   double ratio;
   PrivateData * p = get_private_data (GTK_WINDOW (wind));
-
-  printf("prefsChanges(%d)\n", key);
 
   switch (key)
     {
       case TR_KEY_compact_view:
-        printf("compact-view\n");
         g_object_set (p->renderer, "compact", gtr_pref_flag_get (key), NULL);
         /* since the cell size has changed, we need gtktreeview to revalidate
          * its fixed-height mode values. Unfortunately there's not an API call
@@ -216,20 +205,17 @@ prefsChanged (TrCore           * core UNUSED,
         break;
 
       case TR_KEY_show_statusbar:
-        printf("show-status-bar\n");
         isEnabled = gtr_pref_flag_get (key);
         g_object_set (p->status, "visible", isEnabled, NULL);
         break;
 
       case TR_KEY_show_filterbar:
-        printf("show-filter-bar\n");
         isEnabled = gtr_pref_flag_get (key);
         g_object_set (p->filter, "visible", isEnabled, NULL);
         break;
 
       case TR_KEY_show_toolbar:
         isEnabled = gtr_pref_flag_get (key);
-        printf("TR_KEY_show_toolbar now is %d\n", isEnabled);
         g_object_set (p->toolbar, "visible", isEnabled, NULL);
         break;
 
@@ -358,51 +344,12 @@ onAltSpeedToggled (tr_session * s UNUSED, bool isEnabled UNUSED, bool byUser UNU
   gdk_threads_add_idle (onAltSpeedToggledIdle, p);
 }
 
-/***
-****  Option menu
-***/
-
-static void
-onOptionsClicked (GtkButton * button UNUSED, gpointer vp)
-{
-  char buf1[512];
-  char buf2[512];
-  gboolean b;
-  GtkWidget * w;
-  PrivateData * p = vp;
-
-  w = p->speedlimit_on_item[TR_DOWN];
-  tr_formatter_speed_KBps (buf1, gtr_pref_int_get (TR_KEY_speed_limit_down), sizeof (buf1));
-  gtr_label_set_text (GTK_LABEL (gtk_bin_get_child (GTK_BIN (w))), buf1);
-
-  b = gtr_pref_flag_get (TR_KEY_speed_limit_down_enabled);
-  w = b ? p->speedlimit_on_item[TR_DOWN] : p->speedlimit_off_item[TR_DOWN];
-  gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (w), TRUE);
-
-  w = p->speedlimit_on_item[TR_UP];
-  tr_formatter_speed_KBps (buf1, gtr_pref_int_get (TR_KEY_speed_limit_up), sizeof (buf1));
-  gtr_label_set_text (GTK_LABEL (gtk_bin_get_child (GTK_BIN (w))), buf1);
-
-  b = gtr_pref_flag_get (TR_KEY_speed_limit_up_enabled);
-  w = b ? p->speedlimit_on_item[TR_UP] : p->speedlimit_off_item[TR_UP];
-  gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (w), TRUE);
-
-  tr_strlratio (buf1, gtr_pref_double_get (TR_KEY_ratio_limit), sizeof (buf1));
-  g_snprintf (buf2, sizeof (buf2), _("Stop at Ratio (%s)"), buf1);
-  gtr_label_set_text (GTK_LABEL (gtk_bin_get_child (GTK_BIN (p->ratio_on_item))), buf2);
-
-  b = gtr_pref_flag_get (TR_KEY_ratio_limit_enabled);
-  gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (b ? p->ratio_on_item : p->ratio_off_item), TRUE);
-
-  gtk_menu_popup (GTK_MENU (p->options_menu), NULL, NULL, NULL, NULL, 0, gtk_get_current_event_time ());
-}
-
 static GMenuModel *
 get_statistics_menu_model ()
 {
-  int i, n;
+  unsigned int i;
   GMenuItem * mi;
-  GMenu     * m, *sm;
+  GMenu     * m;
 
   struct {
     const char *  val, *i18n;
@@ -413,7 +360,7 @@ get_statistics_menu_model ()
     { "session-transfer", N_("Session Transfer")   }
   };
 
-  char * action_key;
+  const char * action_key;
   char detailed_action[256];
 
   action_key  = tr_quark_get_string(TR_KEY_statusbar_stats, NULL);
@@ -439,33 +386,27 @@ get_statistics_menu_model ()
 
 
 void 
-on_ratio_limit(TrLimitPopover *popover, double ratio, gpointer vp)
+on_ratio_limit(TrLimitPopover *popover UNUSED, double ratio, gpointer vp)
 {
   PrivateData *p = vp;
-
-  printf("on_ratio_limit %.02f\n", ratio);
 
   gtr_core_set_pref_double (p->core, TR_KEY_ratio_limit, ratio);
   gtr_core_set_pref_bool (p->core, TR_KEY_ratio_limit_enabled, TRUE);
 }
 
 void 
-on_speed_limit_up(TrLimitPopover *popover, int limit, gpointer vp)
+on_speed_limit_up(TrLimitPopover *popover UNUSED, int limit, gpointer vp)
 {
   PrivateData *p = vp;
-
-  printf("on_speed_limit_up %d\n", limit);
 
   gtr_core_set_pref_int (p->core, TR_KEY_speed_limit_up, limit);
   gtr_core_set_pref_bool (p->core, TR_KEY_speed_limit_up_enabled, TRUE);
 }
 
 void 
-on_speed_limit_down(TrLimitPopover *popover, int limit, gpointer vp)
+on_speed_limit_down(TrLimitPopover *popover UNUSED, int limit, gpointer vp)
 {
   PrivateData *p = vp;
-
-  printf("on_speed_limit_down %d\n", limit);
 
   gtr_core_set_pref_int (p->core, TR_KEY_speed_limit_down, limit);
   gtr_core_set_pref_bool (p->core, TR_KEY_speed_limit_down_enabled, TRUE);
@@ -506,11 +447,10 @@ on_start_all_torrents_toggled (GtkToggleButton *button, gpointer vp)
 GtkWidget *
 gtr_status_bar_new (PrivateData *p)
 {
-  GtkWidget * sibling = NULL;
   GtkWidget * ul_lb, * dl_lb;
   GtkWidget * w, *box, *pop, *box_wrapper;
   GtkCssProvider *css_provider;
-  char      * style = "GtkBox.status-bar {\n"
+  const char * style = "GtkBox.status-bar {\n"
                         "padding: 0 3px 0 3px;\n"
                       "}\n"
                       "GtkBox.status-bar GtkButton {\n"
@@ -531,7 +471,7 @@ gtr_status_bar_new (PrivateData *p)
                         "font-size: 9px;\n"
                       "}";
 
-  box_wrapper = GTK_BOX (gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0));
+  box_wrapper = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
 
   gtk_style_context_add_class (gtk_widget_get_style_context (box_wrapper), "status-bar");
 
@@ -548,7 +488,7 @@ gtr_status_bar_new (PrivateData *p)
   
   pop = gtk_popover_new (w);
 
-  p->limit_popover = box = tr_limit_popover_new ();
+  box = p->limit_popover = GTK_WIDGET (tr_limit_popover_new ());
   gtk_container_add (GTK_CONTAINER (pop), GTK_WIDGET (box));
   gtk_widget_show_all (box);
 
@@ -566,26 +506,26 @@ gtr_status_bar_new (PrivateData *p)
   gtk_button_set_image (GTK_BUTTON (w), p->alt_speed_image);
   gtk_button_set_relief (GTK_BUTTON (w), GTK_RELIEF_NONE);
   g_signal_connect (w, "toggled", G_CALLBACK (alt_speed_toggled_cb), p);
-  gtk_box_pack_start (box_wrapper, w, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (box_wrapper), w, FALSE, FALSE, 0);
 
   /* download */
   w = dl_lb = gtk_label_new (NULL);
   p->dl_lb = GTK_LABEL (w);
   gtk_label_set_single_line_mode (p->dl_lb, TRUE);
-  gtk_box_pack_start (box_wrapper, w, TRUE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (box_wrapper), w, TRUE, FALSE, 0);
 
   /* upload */
   w = ul_lb = gtk_label_new (NULL);
   p->ul_lb = GTK_LABEL (w);
   gtk_label_set_single_line_mode (p->ul_lb, TRUE);
-  gtk_box_pack_start (box_wrapper, w, TRUE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (box_wrapper), w, TRUE, FALSE, 0);
 
   /* ratio */
   w = gtk_label_new (NULL);
   g_object_set (G_OBJECT(w), "margin-left", GUI_PAD_BIG, NULL);
   p->stats_lb = GTK_LABEL (w);
   gtk_label_set_single_line_mode (p->stats_lb, TRUE);
-  gtk_box_pack_start (box_wrapper, w, TRUE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (box_wrapper), w, TRUE, FALSE, 0);
 
   /* statistics button */
   w = gtk_menu_button_new ();
@@ -593,7 +533,7 @@ gtr_status_bar_new (PrivateData *p)
   gtk_button_set_image (GTK_BUTTON (w), gtk_image_new_from_icon_name ("ratio", GTK_ICON_SIZE_SMALL_TOOLBAR));
   gtk_menu_button_set_menu_model (GTK_MENU_BUTTON (w), get_statistics_menu_model());
   gtk_widget_set_tooltip_text (w, _("Statistics"));
-  gtk_box_pack_end (box_wrapper, w, FALSE, FALSE, 0);
+  gtk_box_pack_end (GTK_BOX (box_wrapper), w, FALSE, FALSE, 0);
   
   return box_wrapper; 
 }
@@ -601,19 +541,14 @@ gtr_status_bar_new (PrivateData *p)
 GtkWidget * 
 gtr_window_new( GtkApplication * app, TrCore * core )
 {
-  int              i, n;
-  const char     * pch, * style;
+  const char     * style;
   PrivateData    * p;
-  GtkWidget      * sibling = NULL;
   GtkWidget      * toolbar, *filter, *list, *status;
-  GtkWidget      * vbox, *tbox, *w, *pop, *self, *menu;
-  GtkWidget      * button, *toggle_button;
+  GtkWidget      * vbox, *tbox, *w, *self;
+  GtkWidget      * button;
   GtkWidget      * image;
-  GtkWidget      * grid_w;
   GtkWindow      * win;
   GtkCssProvider * css_provider;
-  GSList         * l;
-  GtkGrid        * grid;
   GMenuModel     * model;
 
   p = g_new0 (PrivateData, 1);
@@ -624,7 +559,7 @@ gtr_window_new( GtkApplication * app, TrCore * core )
   win = GTK_WINDOW (self);
   gtk_window_set_role (win, "tr-main");
   gtk_window_set_title (win, g_get_application_name ());
-  gtk_widget_set_size_request (win, 620, 220);
+  gtk_widget_set_size_request (GTK_WIDGET (win), 620, 220);
   gtk_window_set_default_size (win,
                                gtr_pref_int_get (TR_KEY_main_window_width),
                                gtr_pref_int_get (TR_KEY_main_window_height));
@@ -729,7 +664,6 @@ gtr_window_new( GtkApplication * app, TrCore * core )
 
   /* listen for prefs changes that affect the window */
   p->core = core;
-  printf("should call prefsChanged\n");
   prefsChanged (core, TR_KEY_compact_view, self);
   prefsChanged (core, TR_KEY_show_filterbar, self);
   prefsChanged (core, TR_KEY_show_statusbar, self);
