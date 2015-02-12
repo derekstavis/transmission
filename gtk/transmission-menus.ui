@@ -27,6 +27,17 @@
     </section>
 
     <section>
+        <item>
+            <attribute name="label" translatable="yes">_Start All</attribute>
+            <attribute name="action">win.start-all-torrents</attribute>
+        </item>
+        <item>
+            <attribute name="label" translatable="yes">_Pause All</attribute>
+            <attribute name="action">win.pause-all-torrents</attribute>
+        </item>
+    </section>
+
+    <section>
       <item>
         <attribute name="label" translatable="yes">Message _Log</attribute>
         <attribute name="action">win.toggle-message-log</attribute>
