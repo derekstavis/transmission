@@ -25,18 +25,7 @@
         <attribute name="action">win.preferences</attribute>
       </item>
     </section>
-    
-    <section>
-      <item>
-        <attribute name="label" translatable="yes">_Start All</attribute>
-        <attribute name="action">win.start-all-torrents</attribute>
-      </item>
-      <item>
-        <attribute name="label" translatable="yes">_Pause All</attribute>
-        <attribute name="action">win.pause-all-torrents</attribute>
-      </item>
-    </section>
-    
+
     <section>
       <item>
         <attribute name="label" translatable="yes">Message _Log</attribute>
@@ -57,13 +46,10 @@
         <attribute name="action">win.show-about-dialog</attribute>
       </item>
       <item>
-        <attribute name="label" translatable="yes">_Contents</attribute>
+        <attribute name="label" translatable="yes">_Help</attribute>
         <attribute name="action">win.help</attribute>
         <attribute name="accel">F1</attribute>
       </item>
-    </section>
-
-    <section>
       <item>
         <attribute name="label" translatable="yes">_Quit</attribute>
         <attribute name="action">win.quit</attribute>
