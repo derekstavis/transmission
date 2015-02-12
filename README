@@ -1,9 +1,13 @@
-ABOUT THIS FORK
+ABOUT THIS REPOSITORY
 
-This fork is being developed as main theme of my (Derek Stavis) 
+This repository is being developed as main theme of my (Derek Stavis) 
 college term paper. The main concepts of UI changes are being 
-detailed in this document and will be released to the community
+detailed in this document (the paper) and will be released to the community
 as soon as it's finished.
+
+I plan to propose the changes of first milestone (GMenu/Headerbar/
+Limit Popover) to upstream as soon as April. This is when I will 
+get free time to make the patches.
 
 In the meantime, proposals of every type of enhancement to the 
 software experience can be discussed, let's get together to 
