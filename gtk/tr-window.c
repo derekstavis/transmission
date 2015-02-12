@@ -52,7 +52,6 @@ typedef struct
     GtkWidget          * status_menu;
     GtkLabel           * ul_lb;
     GtkLabel           * dl_lb;
-    GtkLabel           * stats_lb;
     GtkWidget          * alt_speed_image;
     GtkWidget          * alt_speed_button;
     GtkWidget          * start_stop_button;
@@ -345,42 +344,6 @@ onAltSpeedToggled (tr_session * s UNUSED, bool isEnabled UNUSED, bool byUser UNU
   gdk_threads_add_idle (onAltSpeedToggledIdle, p);
 }
 
-static GMenuModel *
-get_statistics_menu_model ()
-{
-  unsigned int i;
-  GMenuItem * mi;
-  GMenu     * m;
-
-  struct {
-    const char *  val, *i18n;
-  } stats_modes[] = {
-    { "total-ratio",      N_("Total Ratio")        },
-    { "session-ratio",    N_("Session Ratio")      },
-    { "total-transfer",   N_("Total Transfer")     },
-    { "session-transfer", N_("Session Transfer")   }
-  };
-
-  const char * action_key;
-  char detailed_action[256];
-
-  action_key  = tr_quark_get_string(TR_KEY_statusbar_stats, NULL);
-  
-  m = g_menu_new ();
-
-  for (i = 0; i < G_N_ELEMENTS (stats_modes); i++) {
-    g_snprintf(detailed_action, 
-               sizeof (detailed_action), 
-               "win.%s('%s')", 
-               action_key, stats_modes[i].val);
-
-    mi = g_menu_item_new (stats_modes[i].i18n, detailed_action);
-    g_menu_append_item (m, mi);
-  }
-
-  return G_MENU_MODEL (m);
-}
-
 /***
 ****  Speed limit popover
 ***/
@@ -446,7 +409,6 @@ on_start_all_torrents_toggled (GtkToggleButton *button, gpointer vp)
 GtkWidget *
 gtr_status_bar_new (PrivateData *p)
 {
-  GtkWidget * ul_lb, * dl_lb;
   GtkWidget * w, *box, *pop, *box_wrapper;
   GtkCssProvider *css_provider;
   const char * style = "GtkBox.status-bar {\n"
@@ -498,33 +460,6 @@ gtr_status_bar_new (PrivateData *p)
   g_signal_connect (w, "toggled", G_CALLBACK (alt_speed_toggled_cb), p);
   gtk_box_pack_start (GTK_BOX (box_wrapper), w, FALSE, FALSE, 0);
 
-  /* download */
-  w = dl_lb = gtk_label_new (NULL);
-  p->dl_lb = GTK_LABEL (w);
-  gtk_label_set_single_line_mode (p->dl_lb, TRUE);
-  gtk_box_pack_start (GTK_BOX (box_wrapper), w, TRUE, FALSE, 0);
-
-  /* upload */
-  w = ul_lb = gtk_label_new (NULL);
-  p->ul_lb = GTK_LABEL (w);
-  gtk_label_set_single_line_mode (p->ul_lb, TRUE);
-  gtk_box_pack_start (GTK_BOX (box_wrapper), w, TRUE, FALSE, 0);
-
-  /* ratio */
-  w = gtk_label_new (NULL);
-  g_object_set (G_OBJECT(w), "margin-left", GUI_PAD_BIG, NULL);
-  p->stats_lb = GTK_LABEL (w);
-  gtk_label_set_single_line_mode (p->stats_lb, TRUE);
-  gtk_box_pack_start (GTK_BOX (box_wrapper), w, TRUE, FALSE, 0);
-
-  /* statistics button */
-  w = gtk_menu_button_new ();
-  gtk_menu_button_set_use_popover (GTK_MENU_BUTTON (w), TRUE);
-  gtk_button_set_image (GTK_BUTTON (w), gtk_image_new_from_icon_name ("ratio", GTK_ICON_SIZE_SMALL_TOOLBAR));
-  gtk_menu_button_set_menu_model (GTK_MENU_BUTTON (w), get_statistics_menu_model());
-  gtk_widget_set_tooltip_text (w, _("Statistics"));
-  gtk_box_pack_end (GTK_BOX (box_wrapper), w, FALSE, FALSE, 0);
-  
   return box_wrapper; 
 }
 
@@ -548,8 +483,10 @@ gtr_window_new( GtkApplication * app, TrCore * core )
   GtkWidget      * vbox, *tbox, *w, *self;
   GtkWidget      * button;
   GtkWidget      * image;
+  GtkWidget      * title_grid, *title_label;
   GtkWindow      * win;
   GtkCssProvider * css_provider;
+  GtkStyleContext* style_context;
   GMenuModel     * model;
 
   p = g_new0 (PrivateData, 1);
@@ -586,8 +523,32 @@ gtr_window_new( GtkApplication * app, TrCore * core )
   /* toolbar */
   toolbar = gtk_header_bar_new();
   gtk_header_bar_set_show_close_button (GTK_HEADER_BAR (toolbar), TRUE);
-  gtk_header_bar_set_title (GTK_HEADER_BAR (toolbar), g_get_application_name ());
-  gtk_header_bar_set_subtitle (GTK_HEADER_BAR (toolbar), "All Torrents");
+  title_grid = gtk_grid_new ();
+  gtk_grid_set_column_spacing (GTK_GRID (title_grid), 6);
+
+  /* title label */
+  title_label = gtk_label_new (g_get_application_name ());
+  gtk_grid_attach (GTK_GRID (title_grid), title_label, 0, 0, 2, 1);
+  style_context = gtk_widget_get_style_context (title_label);
+  gtk_style_context_add_class (style_context, "title");
+
+  /* download */
+  w = gtk_label_new (NULL);
+  p->dl_lb = GTK_LABEL (w);
+  gtk_label_set_single_line_mode (p->dl_lb, TRUE);
+  style_context = gtk_widget_get_style_context (w);
+  gtk_style_context_add_class (style_context, "subtitle");
+  gtk_grid_attach (GTK_GRID (title_grid), w, 0, 1, 1, 1);
+
+  /* upload */
+  w = gtk_label_new (NULL);
+  p->ul_lb = GTK_LABEL (w);
+  gtk_label_set_single_line_mode (p->ul_lb, TRUE);
+  style_context = gtk_widget_get_style_context (w);
+  gtk_style_context_add_class (style_context, "subtitle");
+  gtk_grid_attach (GTK_GRID (title_grid), w, 1, 1, 1, 1);
+
+  gtk_header_bar_set_custom_title (GTK_HEADER_BAR (toolbar), title_grid);
   gtk_window_set_titlebar (GTK_WINDOW (win), toolbar);
 
   /* new torrent actions */
@@ -739,7 +700,6 @@ updateStats (PrivateData * p)
       g_snprintf (buf, sizeof (buf), _("Ratio: %s"), ratio);
     }
 
-  gtr_label_set_text (p->stats_lb, buf);
 }
 
 static void
