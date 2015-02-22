@@ -48,7 +48,6 @@ noinst_HEADERS = \
     tr-icon.h \
     tr-prefs.h \
     tr-window.h \
-    tr-status-menu-button.h \
     tr-limit-popover.h \
     util.h
 
@@ -77,7 +76,6 @@ transmission_gtk_SOURCES = \
     tr-icon.c \
     tr-prefs.c \
     tr-window.c \
-    tr-status-menu-button.c \
     tr-limit-popover.c \
     util.c
 
