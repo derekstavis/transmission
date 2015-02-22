@@ -5,23 +5,20 @@ public_icons_themes = \
 	$(NULL)
 
 public_icons = \
-	hicolor_apps_16x16_transmission.png \
-	hicolor_apps_22x22_transmission.png \
-	hicolor_apps_24x24_transmission.png \
-	hicolor_apps_32x32_transmission.png \
-	hicolor_apps_48x48_transmission.png \
-	hicolor_apps_256x256_transmission.png \
-	hicolor_apps_scalable_transmission.svg \
+	hicolor/apps/16x16/transmission.png \
+	hicolor/apps/22x22/transmission.png \
+	hicolor/apps/24x24/transmission.png \
+	hicolor/apps/32x32/transmission.png \
+	hicolor/apps/48x48/transmission.png \
+	hicolor/apps/256x256/transmission.png \
+	hicolor/apps/scalable/transmission.svg \
 	$(NULL)
 
 private_icons = \
 	$(NULL)
 
 noinst_DATA = \
-	hicolor_apps_16x16_transmission.svg \
-	hicolor_apps_22x22_transmission.svg \
-	hicolor_apps_32x32_transmission.svg \
-	transmission.svg \
+	source.svg \
 	$(NULL)
 
 EXTRA_DIST = \

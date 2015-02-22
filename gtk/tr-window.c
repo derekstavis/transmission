@@ -289,7 +289,8 @@ syncAltSpeedButton (PrivateData * p)
   char * str;
   const char * fmt;
   const gboolean b = gtr_pref_flag_get (TR_KEY_alt_speed_enabled);
-  const char * stock = b ? "alt-speed-on" : "alt-speed-off";
+  const char * icon = b ? "alternative-speed-on-symbolic"
+                        : "alternative-speed-off-symbolic";
   GtkWidget * w = p->alt_speed_button;
 
   tr_formatter_speed_KBps (u, gtr_pref_int_get (TR_KEY_alt_speed_up), sizeof (u));
@@ -299,7 +300,7 @@ syncAltSpeedButton (PrivateData * p)
   str = g_strdup_printf (fmt, d, u);
 
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (w), b);
-  gtk_image_set_from_icon_name (GTK_IMAGE (p->alt_speed_image), stock, GTK_ICON_SIZE_SMALL_TOOLBAR);
+  gtk_image_set_from_icon_name (GTK_IMAGE (p->alt_speed_image), icon, GTK_ICON_SIZE_SMALL_TOOLBAR);
   gtk_button_set_alignment (GTK_BUTTON (w), 0.5, 0.5);
   gtk_widget_set_tooltip_text (w, str);
 
@@ -447,7 +448,7 @@ GtkWidget *
 gtr_status_bar_new (PrivateData *p)
 {
   GtkWidget * ul_lb, * dl_lb;
-  GtkWidget * w, *box, *pop, *box_wrapper;
+  GtkWidget * w, * img, * box, * pop, * box_wrapper;
   GtkCssProvider *css_provider;
   const char * style = "GtkBox.status-bar {\n"
                          "padding: 0 3px 0 3px;\n"
@@ -473,7 +474,8 @@ gtr_status_bar_new (PrivateData *p)
                                             GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 
   w = gtk_menu_button_new ();
-  gtk_button_set_image (GTK_BUTTON (w), gtk_image_new_from_icon_name ("emblem-system-symbolic", GTK_ICON_SIZE_SMALL_TOOLBAR));
+  gtk_button_set_image (GTK_BUTTON (w), gtk_image_new_from_icon_name (
+    "network-transmit-receive-symbolic", GTK_ICON_SIZE_SMALL_TOOLBAR));
   gtk_button_set_relief (GTK_BUTTON (w), GTK_RELIEF_NONE);
   
   pop = gtk_popover_new (w);
@@ -520,7 +522,8 @@ gtr_status_bar_new (PrivateData *p)
   /* statistics button */
   w = gtk_menu_button_new ();
   gtk_menu_button_set_use_popover (GTK_MENU_BUTTON (w), TRUE);
-  gtk_button_set_image (GTK_BUTTON (w), gtk_image_new_from_icon_name ("ratio", GTK_ICON_SIZE_SMALL_TOOLBAR));
+  img = gtk_image_new_from_icon_name ("statistics-symbolic", GTK_ICON_SIZE_SMALL_TOOLBAR);
+  gtk_button_set_image (GTK_BUTTON (w), img);
   gtk_menu_button_set_menu_model (GTK_MENU_BUTTON (w), get_statistics_menu_model());
   gtk_widget_set_tooltip_text (w, _("Statistics"));
   gtk_box_pack_end (GTK_BOX (box_wrapper), w, FALSE, FALSE, 0);

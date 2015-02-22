@@ -22,13 +22,6 @@
 #include "tr-core.h"
 #include "tr-prefs.h"
 
-#include "icon-lock.h"
-#include "icon-logo-24.h"
-#include "icon-logo-48.h"
-#include "icon-ratio.h"
-#include "icon-turtle.h"
-#include "icon-utilities.h"
-
 #define UNUSED G_GNUC_UNUSED
 #define TR_RESOURCE_PATH "/com/transmissionbt/transmission/"
 
@@ -265,21 +258,18 @@ typedef struct
 }
 BuiltinIconInfo;
 
+/*
 static const BuiltinIconInfo my_fallback_icons[] =
 {
-    { tr_icon_logo_48,  WINDOW_ICON          },
-    { tr_icon_logo_24,  TRAY_ICON            },
-    { tr_icon_logo_48,  NOTIFICATION_ICON    },
     { tr_icon_lock,     "transmission-lock"  },
-    { utilities_icon,   "utilities"          },
-    { blue_turtle,      "alt-speed-on"       },
-    { grey_turtle,      "alt-speed-off"      },
-    { ratio_icon,       "ratio"              }
+    { utilities_icon,   "utilities"          }
 };
+*/
 
 static void
 register_my_icons (void)
 {
+  /*
   int i;
   const int n = G_N_ELEMENTS (my_fallback_icons);
   GtkIconTheme * theme = gtk_icon_theme_get_default ();
@@ -306,6 +296,10 @@ register_my_icons (void)
             }
         }
     }
+    */
+
+    gtk_icon_theme_add_resource_path (gtk_icon_theme_get_default (),
+                                    "/com/transmissionbt/transmission/icons");
 
 }
 
