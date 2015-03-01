@@ -251,58 +251,6 @@ update_entry_states( GActionEntry *entries, int n_entries )
     }
 }
 
-typedef struct
-{
-    const guint8*   raw;
-    const char *    name;
-}
-BuiltinIconInfo;
-
-/*
-static const BuiltinIconInfo my_fallback_icons[] =
-{
-    { tr_icon_lock,     "transmission-lock"  },
-    { utilities_icon,   "utilities"          }
-};
-*/
-
-static void
-register_my_icons (void)
-{
-  /*
-  int i;
-  const int n = G_N_ELEMENTS (my_fallback_icons);
-  GtkIconTheme * theme = gtk_icon_theme_get_default ();
-
-  for (i=0; i<n; ++i)
-    {
-      const char * name = my_fallback_icons[i].name;
-
-      if (!gtk_icon_theme_has_icon (theme, name))
-        {
-          GdkPixbuf * p;
-
-          p = gdk_pixbuf_new_from_inline (-1, my_fallback_icons[i].raw, FALSE, NULL);
-
-          if (p != NULL)
-            {
-              int width;
-
-              width = gdk_pixbuf_get_width (p);
-
-              gtk_icon_theme_add_builtin_icon (name, width, p);
-
-              g_object_unref (p);
-            }
-        }
-    }
-    */
-
-    gtk_icon_theme_add_resource_path (gtk_icon_theme_get_default (),
-                                    "/com/transmissionbt/transmission/icons");
-
-}
-
 void
 gtr_actions_set_core (TrCore * core)
 {
@@ -313,7 +261,6 @@ void
 gtr_actions_init( GtkApplication * app, gpointer callback_user_data UNUSED )
 {
     gtk_application_set_app_menu (app, gtr_action_get_menu_model ("menubar"));
-    register_my_icons();
 }
 
 void

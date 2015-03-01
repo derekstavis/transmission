@@ -40,6 +40,10 @@
 #include "tr-limit-popover.h"
 #include "util.h"
 
+#define TR_ROOT_PATH "/com/transmissionbt/transmission/"
+#define TR_CSS_RESOURCE_PATH TR_ROOT_PATH "css/transmission.scss"
+#define TR_ICON_RESOURCE_PATH TR_ROOT_PATH "icons"
+
 typedef struct
 {
     GtkWidget          * scroll;
@@ -575,8 +579,12 @@ gtr_window_new( GtkApplication * app, TrCore * core )
   if (gtr_pref_flag_get (TR_KEY_main_window_is_maximized))
     gtk_window_maximize (win);
 
-  load_css_from_resource (
-    "resource:///com/transmissionbt/transmission/css/transmission.scss");
+  // load CSS theme
+  load_css_from_resource ("resource://" TR_CSS_RESOURCE_PATH);
+
+  // load icon theme
+  gtk_icon_theme_add_resource_path (gtk_icon_theme_get_default (),
+                                    TR_ICON_RESOURCE_PATH);
 
   /* window's main container */
   vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
