@@ -28,7 +28,7 @@ hig_workarea_create (void)
 void
 hig_workarea_add_section_divider (GtkWidget * t, guint * row)
 {
-    GtkWidget * w = gtk_alignment_new (0.0f, 0.0f, 0.0f, 0.0f);
+    GtkWidget * w = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
 
     gtk_widget_set_size_request (w, 0u, 6u);
     gtk_grid_attach (GTK_GRID (t), w, 0, *row, 2, 1);
@@ -51,7 +51,8 @@ hig_workarea_add_section_title (GtkWidget *  t, guint * row, const char * sectio
 
     g_snprintf (buf, sizeof (buf), "<b>%s</b>", section_title);
     l = gtk_label_new (buf);
-    gtk_misc_set_alignment (GTK_MISC (l), 0.0f, 0.5f);
+    gtk_widget_set_halign (l, GTK_ALIGN_START);
+    gtk_widget_set_valign (l, GTK_ALIGN_CENTER);
     gtk_label_set_use_markup (GTK_LABEL (l), TRUE);
     hig_workarea_add_section_title_widget (t, row, l);
 }
@@ -89,8 +90,8 @@ void
 hig_workarea_add_label_w (GtkWidget * t, guint row, GtkWidget * w)
 {
     gtk_widget_set_margin_start (w, 18);
-    if (GTK_IS_MISC (w))
-        gtk_misc_set_alignment (GTK_MISC (w), 0.0f, 0.5f);
+    gtk_widget_set_halign (w, GTK_ALIGN_START);
+    gtk_widget_set_valign (w, GTK_ALIGN_CENTER);
     if (GTK_IS_LABEL (w))
         gtk_label_set_use_markup (GTK_LABEL (w), TRUE);
     gtk_grid_attach (GTK_GRID (t), w, 0, row, 1, 1);
@@ -99,8 +100,8 @@ hig_workarea_add_label_w (GtkWidget * t, guint row, GtkWidget * w)
 static void
 hig_workarea_add_tall_control (GtkWidget * t, guint row, GtkWidget * control)
 {
-    if (GTK_IS_MISC (control))
-        gtk_misc_set_alignment (GTK_MISC (control), 0.0f, 0.5f);
+    gtk_widget_set_halign (control, GTK_ALIGN_START);
+    gtk_widget_set_valign (control, GTK_ALIGN_CENTER);
 
     g_object_set (control, "expand", TRUE, NULL);
     gtk_grid_attach (GTK_GRID (t), control, 1, row, 1, 1);
@@ -109,8 +110,8 @@ hig_workarea_add_tall_control (GtkWidget * t, guint row, GtkWidget * control)
 static void
 hig_workarea_add_control (GtkWidget * t, guint row, GtkWidget * control)
 {
-    if (GTK_IS_MISC (control))
-        gtk_misc_set_alignment (GTK_MISC (control), 0.0f, 0.5f);
+    gtk_widget_set_halign (control, GTK_ALIGN_START);
+    gtk_widget_set_valign (control, GTK_ALIGN_CENTER);
 
     gtk_widget_set_hexpand (control, TRUE);
     gtk_grid_attach (GTK_GRID (t), control, 1, row, 1, 1);
