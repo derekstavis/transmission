@@ -240,7 +240,7 @@ update_entry_states( GActionEntry *entries, int n_entries )
 
             if (entry->name == NULL)
                 len = 0;
-            else if (len == (size_t)-1)
+            else
                 len = strlen (entry->name);
 
             if (tr_quark_lookup (entry->name, len, &entry_name)) {
