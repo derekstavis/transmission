@@ -1312,16 +1312,21 @@ gtr_prefs_dialog_new (GtkWindow * parent, GObject * core)
 
   d = gtk_dialog_new_with_buttons (_("Transmission Preferences"),
                                    parent,
+                                   GTK_DIALOG_USE_HEADER_BAR |
                                    GTK_DIALOG_DESTROY_WITH_PARENT,
                                    _("_Help"), GTK_RESPONSE_HELP,
                                    _("_Close"), GTK_RESPONSE_CLOSE,
                                    NULL);
+
+  gtk_dialog_set_default_response (GTK_DIALOG (d), GTK_RESPONSE_CLOSE);
+
   g_object_weak_ref (G_OBJECT(d), on_prefs_dialog_destroyed, data);
   gtk_window_set_role (GTK_WINDOW (d), "transmission-preferences-dialog");
-  gtk_container_set_border_width (GTK_CONTAINER (d), GUI_PAD);
 
   n = gtk_notebook_new ();
-  gtk_container_set_border_width (GTK_CONTAINER (n), GUI_PAD);
+  gtk_notebook_set_show_border (GTK_NOTEBOOK (n), FALSE);
+
+  gtk_notebook_set_tab_pos (GTK_NOTEBOOK (n), GTK_POS_LEFT);
 
   gtk_notebook_append_page (GTK_NOTEBOOK (n), speedPage (core),
                             gtk_label_new (_("Speed")));

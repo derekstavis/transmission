@@ -153,9 +153,9 @@ gtr_confirm_remove (GtkWindow  * parent,
                           (delete_files ? _("_Delete"):
                               _("Remove")), GTK_RESPONSE_ACCEPT,
                             NULL);
-    gtk_dialog_set_default_response (GTK_DIALOG (d),
-                                     GTK_RESPONSE_CANCEL);
-    
+
+    gtk_dialog_set_default_response (GTK_DIALOG (d), GTK_RESPONSE_CANCEL);
+
     g_signal_connect (d, "response", G_CALLBACK (on_remove_dialog_response), dd);
     gtk_widget_show_all (d);
 
