@@ -135,13 +135,14 @@ gtr_stats_dialog_new (GtkWindow * parent, TrCore * core)
 
   d = gtk_dialog_new_with_buttons (_("Statistics"),
                                    parent,
+                                   GTK_DIALOG_USE_HEADER_BAR |
                                    GTK_DIALOG_DESTROY_WITH_PARENT,
-                                   _("_Reset"), TR_RESPONSE_RESET,
                                    _("Cl_ose"), GTK_RESPONSE_CLOSE,
+                                   _("_Reset"), TR_RESPONSE_RESET,
                                    NULL);
-  gtk_dialog_set_default_response (GTK_DIALOG (d),
-                                   GTK_RESPONSE_CLOSE);
-  
+
+  gtk_dialog_set_default_response (GTK_DIALOG (d), GTK_RESPONSE_CLOSE);
+
   t = hig_workarea_create ();
   ui->core = core;
 
