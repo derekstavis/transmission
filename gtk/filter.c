@@ -292,7 +292,7 @@ gtr_filter_bar_new (tr_session   * session UNUSED,
 
   toolbar = gtk_toolbar_new ();
   gtk_style_context_add_class (gtk_widget_get_style_context (toolbar),
-                               GTK_STYLE_CLASS_TOOLBAR);
+                               "search-bar");
   gtk_container_set_border_width (GTK_CONTAINER (toolbar), 0);
 
   ti = gtk_tool_item_new ();
