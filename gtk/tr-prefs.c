@@ -1303,6 +1303,8 @@ gtr_prefs_dialog_new (GtkWindow * parent, GObject * core)
   size_t i;
   GtkWidget * d;
   GtkWidget * n;
+  GtkWidget * ss;
+  GtkWidget * b;
   struct prefs_dialog_data * data;
   const tr_quark prefs_quarks[] = { TR_KEY_peer_port, TR_KEY_download_dir };
 
@@ -1323,32 +1325,40 @@ gtr_prefs_dialog_new (GtkWindow * parent, GObject * core)
   g_object_weak_ref (G_OBJECT(d), on_prefs_dialog_destroyed, data);
   gtk_window_set_role (GTK_WINDOW (d), "transmission-preferences-dialog");
 
-  n = gtk_notebook_new ();
-  gtk_notebook_set_show_border (GTK_NOTEBOOK (n), FALSE);
+  ss = gtk_stack_switcher_new ();
+  n = gtk_stack_new ();
 
-  gtk_notebook_set_tab_pos (GTK_NOTEBOOK (n), GTK_POS_LEFT);
+  gtk_widget_set_halign (ss, GTK_ALIGN_CENTER);
+  gtk_stack_set_homogeneous (GTK_STACK(n), false);
+  gtk_stack_set_transition_type (GTK_STACK(n), GTK_STACK_TRANSITION_TYPE_CROSSFADE);
 
-  gtk_notebook_append_page (GTK_NOTEBOOK (n), speedPage (core),
-                            gtk_label_new (_("Speed")));
-  gtk_notebook_append_page (GTK_NOTEBOOK (n), downloadingPage (core, data),
-                            gtk_label_new (C_("Gerund", "Downloading")));
-  gtk_notebook_append_page (GTK_NOTEBOOK (n), seedingPage (core),
-                            gtk_label_new (C_("Gerund", "Seeding")));
-  gtk_notebook_append_page (GTK_NOTEBOOK (n), privacyPage (core),
-                            gtk_label_new (_("Privacy")));
-  gtk_notebook_append_page (GTK_NOTEBOOK (n), networkPage (core),
-                            gtk_label_new (_("Network")));
-  gtk_notebook_append_page (GTK_NOTEBOOK (n), desktopPage (core),
-                            gtk_label_new (_("Desktop")));
-  gtk_notebook_append_page (GTK_NOTEBOOK (n), remotePage (core),
-                            gtk_label_new (_("Remote")));
+  gtk_stack_switcher_set_stack (GTK_STACK_SWITCHER(ss), GTK_STACK(n));
+
+  //gtk_notebook_set_show_border (GTK_NOTEBOOK (n), FALSE);
+
+    //gtk_stack_add_titled (GTK_STACK(n), w, "info", _("Information"));
+
+  gtk_stack_add_titled (GTK_STACK (n), speedPage (core), "speed", _("Speed"));
+  gtk_stack_add_titled (GTK_STACK (n), downloadingPage (core, data), "down",_("Downloading"));
+  gtk_stack_add_titled (GTK_STACK (n), seedingPage (core), "seed", _("Seeding"));
+  gtk_stack_add_titled (GTK_STACK (n), privacyPage (core), "privacy", _("Privacy"));
+  gtk_stack_add_titled (GTK_STACK (n), networkPage (core), "net", _("Network"));
+  gtk_stack_add_titled (GTK_STACK (n), desktopPage (core), "desktop", _("Desktop"));
+  gtk_stack_add_titled (GTK_STACK (n), remotePage (core), "rem", _("Remote"));
 
   /* init from prefs keys */
   for (i=0; i<sizeof(prefs_quarks)/sizeof(prefs_quarks[0]); ++i)
     on_core_prefs_changed (TR_CORE(core), prefs_quarks[i], data);
 
   g_signal_connect (d, "response", G_CALLBACK (response_cb), core);
-  gtr_dialog_set_content (GTK_DIALOG (d), n);
+
+  b = gtk_box_new (GTK_ORIENTATION_VERTICAL, 5);
+  gtk_box_pack_start (GTK_BOX(b), ss, FALSE,TRUE,0);
+  gtk_box_pack_start (GTK_BOX(b), n, TRUE,TRUE,1);
+
+  gtk_container_set_border_width (GTK_CONTAINER (b), GUI_PAD);
+
+  gtr_dialog_set_content (GTK_DIALOG (d), b);
   return d;
 }
 
