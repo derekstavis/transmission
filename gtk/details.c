@@ -2700,6 +2700,10 @@ gtr_torrent_details_dialog_new (GtkWindow * parent, TrCore * core)
     d = gtk_dialog_new_with_buttons (NULL, parent, 0,
                                      _("Cl_ose"), GTK_RESPONSE_CLOSE,
                                      NULL);
+
+    gtk_dialog_set_default_response (GTK_DIALOG (d), GTK_RESPONSE_CLOSE);
+    gtk_window_set_deletable (GTK_WINDOW(d), FALSE);
+
     di->dialog = d;
     gtk_window_set_role (GTK_WINDOW (d), "tr-info");
     g_signal_connect_swapped (d, "response",

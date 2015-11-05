@@ -1321,6 +1321,7 @@ gtr_prefs_dialog_new (GtkWindow * parent, GObject * core)
                                    NULL);
 
   gtk_dialog_set_default_response (GTK_DIALOG (d), GTK_RESPONSE_CLOSE);
+  gtk_window_set_deletable (GTK_WINDOW(d), FALSE);
 
   g_object_weak_ref (G_OBJECT(d), on_prefs_dialog_destroyed, data);
   gtk_window_set_role (GTK_WINDOW (d), "transmission-preferences-dialog");
@@ -1329,14 +1330,12 @@ gtr_prefs_dialog_new (GtkWindow * parent, GObject * core)
   n = gtk_stack_new ();
 
   gtk_widget_set_halign (ss, GTK_ALIGN_CENTER);
+  gtk_orientable_set_orientation (GTK_ORIENTABLE(ss), GTK_ORIENTATION_VERTICAL);
+  
   gtk_stack_set_homogeneous (GTK_STACK(n), false);
-  gtk_stack_set_transition_type (GTK_STACK(n), GTK_STACK_TRANSITION_TYPE_CROSSFADE);
+  gtk_stack_set_transition_type (GTK_STACK(n), GTK_STACK_TRANSITION_TYPE_SLIDE_UP_DOWN);
 
   gtk_stack_switcher_set_stack (GTK_STACK_SWITCHER(ss), GTK_STACK(n));
-
-  //gtk_notebook_set_show_border (GTK_NOTEBOOK (n), FALSE);
-
-    //gtk_stack_add_titled (GTK_STACK(n), w, "info", _("Information"));
 
   gtk_stack_add_titled (GTK_STACK (n), speedPage (core), "speed", _("Speed"));
   gtk_stack_add_titled (GTK_STACK (n), downloadingPage (core, data), "down",_("Downloading"));
@@ -1352,7 +1351,7 @@ gtr_prefs_dialog_new (GtkWindow * parent, GObject * core)
 
   g_signal_connect (d, "response", G_CALLBACK (response_cb), core);
 
-  b = gtk_box_new (GTK_ORIENTATION_VERTICAL, 5);
+  b = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 5);
   gtk_box_pack_start (GTK_BOX(b), ss, FALSE,TRUE,0);
   gtk_box_pack_start (GTK_BOX(b), n, TRUE,TRUE,1);
 
@@ -1361,4 +1360,3 @@ gtr_prefs_dialog_new (GtkWindow * parent, GObject * core)
   gtr_dialog_set_content (GTK_DIALOG (d), b);
   return d;
 }
-
