@@ -1314,7 +1314,7 @@ gtr_prefs_dialog_new (GtkWindow * parent, GObject * core)
 
   d = gtk_dialog_new_with_buttons (_("Transmission Preferences"),
                                    parent,
-                                   GTK_DIALOG_USE_HEADER_BAR |
+                                   //GTK_DIALOG_USE_HEADER_BAR |
                                    GTK_DIALOG_DESTROY_WITH_PARENT,
                                    _("_Help"), GTK_RESPONSE_HELP,
                                    _("_Close"), GTK_RESPONSE_CLOSE,
@@ -1330,8 +1330,8 @@ gtr_prefs_dialog_new (GtkWindow * parent, GObject * core)
   n = gtk_stack_new ();
 
   gtk_widget_set_halign (ss, GTK_ALIGN_CENTER);
-  gtk_orientable_set_orientation (GTK_ORIENTABLE(ss), GTK_ORIENTATION_VERTICAL);
-  
+  //gtk_orientable_set_orientation (GTK_ORIENTABLE(ss), GTK_ORIENTATION_VERTICAL);
+
   gtk_stack_set_homogeneous (GTK_STACK(n), false);
   gtk_stack_set_transition_type (GTK_STACK(n), GTK_STACK_TRANSITION_TYPE_SLIDE_UP_DOWN);
 
@@ -1351,7 +1351,7 @@ gtr_prefs_dialog_new (GtkWindow * parent, GObject * core)
 
   g_signal_connect (d, "response", G_CALLBACK (response_cb), core);
 
-  b = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 5);
+  b = gtk_box_new (GTK_ORIENTATION_VERTICAL, 5);
   gtk_box_pack_start (GTK_BOX(b), ss, FALSE,TRUE,0);
   gtk_box_pack_start (GTK_BOX(b), n, TRUE,TRUE,1);
 

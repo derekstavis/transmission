@@ -92,8 +92,8 @@ gtr_confirm_remove (GtkWindow  * parent,
 
     if (!delete_files)
     {
-        g_string_printf (primary_text, ngettext ("Remove torrent?",
-                                                 "Remove %d torrents?",
+        g_string_printf (primary_text, ngettext ("Remove Torrent?",
+                                                 "Remove %d Torrents?",
                                                  count), count);
     }
     else
@@ -108,8 +108,8 @@ gtr_confirm_remove (GtkWindow  * parent,
     if (!incomplete && !connected)
     {
         g_string_assign (secondary_text, ngettext (
-                "Once removed, continuing the transfer will require the torrent file or magnet link.",
-                "Once removed, continuing the transfers will require the torrent files or magnet links.",
+                "Once removed, continuing the transfer will require re-adding the torrent file or magnet link.",
+                "Once removed, continuing the transfers will require re-adding the torrent files or magnet links.",
                 count));
     }
     else if (count == incomplete)
