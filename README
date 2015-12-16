@@ -28,7 +28,7 @@ BUILDING
 
   Building Transmission from the nightly builds:
 
-    Download a tarball from http://build.transmissionbt.com/job/trunk-linux-inc/
+    Download a tarball from http://build.transmissionbt.com/job/trunk-linux/
     and follow the steps from the previous section.
 
     If you're new to building programs from source code, this is typically 
