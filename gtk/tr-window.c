@@ -434,7 +434,7 @@ gtr_status_bar_new (PrivateData *p)
   box_wrapper = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
 
   gtk_style_context_add_class (gtk_widget_get_style_context (box_wrapper),
-    "status-bar");
+    "action-bar");
 
   w = gtk_menu_button_new ();
   gtk_button_set_image (GTK_BUTTON (w), gtk_image_new_from_icon_name (
