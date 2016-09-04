@@ -2681,66 +2681,73 @@ details_free (gpointer gdata)
 GtkWidget*
 gtr_torrent_details_dialog_new (GtkWindow * parent, TrCore * core)
 {
-  GtkWidget *d, *n, *v, *w, *l;
-  struct DetailsImpl * di = g_new0 (struct DetailsImpl, 1);
+  GtkWidget *d, *n, *v, *switcher, *b;
+    struct DetailsImpl * di = g_new0 (struct DetailsImpl, 1);
 
-  /* one-time setup */
-  if (ARG_KEY == 0)
-    {
-      ARG_KEY          = g_quark_from_static_string ("tr-arg-key");
-      DETAILS_KEY      = g_quark_from_static_string ("tr-details-data-key");
-      TORRENT_ID_KEY   = g_quark_from_static_string ("tr-torrent-id-key");
-      TEXT_BUFFER_KEY  = g_quark_from_static_string ("tr-text-buffer-key");
-      URL_ENTRY_KEY    = g_quark_from_static_string ("tr-url-entry-key");
-    }
+    /* one-time setup */
+    if (ARG_KEY == 0)
+      {
+        ARG_KEY          = g_quark_from_static_string ("tr-arg-key");
+        DETAILS_KEY      = g_quark_from_static_string ("tr-details-data-key");
+        TORRENT_ID_KEY   = g_quark_from_static_string ("tr-torrent-id-key");
+        TEXT_BUFFER_KEY  = g_quark_from_static_string ("tr-text-buffer-key");
+        URL_ENTRY_KEY    = g_quark_from_static_string ("tr-url-entry-key");
+      }
 
-  /* create the dialog */
-  di->core = core;
-  di->gstr = g_string_new (NULL);
-  d = gtk_dialog_new_with_buttons (NULL, parent, GTK_DIALOG_USE_HEADER_BAR,
-                                   _("Cl_ose"), GTK_RESPONSE_CLOSE,
-                                   NULL);
+    /* create the dialog */
+    di->core = core;
+    di->gstr = g_string_new (NULL);
+    d = gtk_dialog_new_with_buttons (NULL, parent, 0,
+                                     _("Cl_ose"), GTK_RESPONSE_CLOSE,
+                                     NULL);
 
-  gtk_dialog_set_default_response (GTK_DIALOG (d), GTK_RESPONSE_CLOSE);
+    gtk_dialog_set_default_response (GTK_DIALOG (d), GTK_RESPONSE_CLOSE);
+    gtk_window_set_deletable (GTK_WINDOW(d), FALSE);
 
-  di->dialog = d;
-  gtk_window_set_role (GTK_WINDOW (d), "tr-info");
-  g_signal_connect_swapped (d, "response",
-                            G_CALLBACK (gtk_widget_destroy), d);
-  g_object_set_qdata_full (G_OBJECT (d), DETAILS_KEY, di, details_free);
+    di->dialog = d;
+    gtk_window_set_role (GTK_WINDOW (d), "tr-info");
+    g_signal_connect_swapped (d, "response",
+                              G_CALLBACK (gtk_widget_destroy), d);
+    gtk_container_set_border_width (GTK_CONTAINER (d), GUI_PAD);
+    g_object_set_qdata_full (G_OBJECT (d), DETAILS_KEY, di, details_free);
 
-  n = gtk_notebook_new ();
-  gtk_notebook_set_show_border (GTK_NOTEBOOK (n), FALSE);
 
-  w = info_page_new (di);
-  l = gtk_label_new (_("Information"));
-  gtk_notebook_append_page (GTK_NOTEBOOK (n), w, l);
+    switcher = gtk_stack_switcher_new ();
+    gtk_widget_set_halign (switcher, GTK_ALIGN_CENTER);
 
-  w = peer_page_new (di);
-  l = gtk_label_new (_("Peers"));
-  gtk_notebook_append_page (GTK_NOTEBOOK (n),  w, l);
+    n = gtk_stack_new ();
+    gtk_stack_set_homogeneous (GTK_STACK(n), true);
+    gtk_stack_set_transition_type (GTK_STACK(n), GTK_STACK_TRANSITION_TYPE_SLIDE_LEFT_RIGHT);
 
-  w = tracker_page_new (di);
-  l = gtk_label_new (_("Trackers"));
-  gtk_notebook_append_page (GTK_NOTEBOOK (n), w, l);
+    gtk_stack_switcher_set_stack (GTK_STACK_SWITCHER(switcher), GTK_STACK(n));
 
-  v = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
-  di->file_list = gtr_file_list_new (core, 0);
-  di->file_label = gtk_label_new (_("File listing not available for combined torrent properties"));
-  gtk_box_pack_start (GTK_BOX (v), di->file_list, TRUE, TRUE, 0);
-  gtk_box_pack_start (GTK_BOX (v), di->file_label, TRUE, TRUE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (v), GUI_PAD_BIG);
-  l = gtk_label_new (_("Files"));
-  gtk_notebook_append_page (GTK_NOTEBOOK (n), v, l);
+    gtk_stack_add_titled (GTK_STACK(n), info_page_new (di), "info", _("Information"));
 
-  w = options_page_new (di);
-  l = gtk_label_new (_("Options"));
-  gtk_notebook_append_page (GTK_NOTEBOOK (n), w, l);
+    gtk_stack_add_titled (GTK_STACK(n), peer_page_new (di), "peers", _("Peers"));
 
-  gtr_dialog_set_content (GTK_DIALOG (d), n);
-  di->periodic_refresh_tag = gdk_threads_add_timeout_seconds (SECONDARY_WINDOW_REFRESH_INTERVAL_SECONDS,
-                                                              periodic_refresh, di);
-  return d;
+    gtk_stack_add_titled (GTK_STACK(n), tracker_page_new (di), "trackers", _("Trackers"));
+
+    v = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+    di->file_list = gtr_file_list_new (core, 0);
+    di->file_label = gtk_label_new (_("File listing not availablse for combined torrent properties"));
+    gtk_box_pack_start (GTK_BOX (v), di->file_list, TRUE, TRUE, 0);
+    gtk_box_pack_start (GTK_BOX (v), di->file_label, TRUE, TRUE, 0);
+    gtk_container_set_border_width (GTK_CONTAINER (v), GUI_PAD_BIG);
+    gtk_stack_add_titled (GTK_STACK(n), v, "files", _("Files"));
+
+    gtk_stack_add_titled (GTK_STACK(n), options_page_new (di), "options", _("Options"));
+
+    b = gtk_box_new (GTK_ORIENTATION_VERTICAL, 5);
+    gtk_box_pack_start (GTK_BOX(b), switcher, FALSE, TRUE, 0);
+    gtk_box_pack_start (GTK_BOX(b), n, TRUE, TRUE, 1);
+
+    gtk_container_set_border_width (GTK_CONTAINER (b), GUI_PAD);
+
+    gtr_dialog_set_content (GTK_DIALOG (d), b);
+
+    di->periodic_refresh_tag = gdk_threads_add_timeout_seconds (SECONDARY_WINDOW_REFRESH_INTERVAL_SECONDS,
+                                                                periodic_refresh, di);
+    return d;
 }
 
 void
